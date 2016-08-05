@@ -24,7 +24,7 @@ namespace ib {
  * parameters to remove data and puts it into pointers to the corresponding
  * type.
  *
- * I choose not to support endian-ness. I believe in big-endian.
+ * I choose not to support endian-ness.
  *
  * Type info is not included, but range checks are used. It throws on bad data.
  * It may be useful to add type info to the representation when debugging.
@@ -111,9 +111,6 @@ class Marshalled {
 		marshallable->demarshal(this);
 	}
 
-	/* I choose not to support endianness.
-	   Only use this if you have big-endian architecture.
-	 */
 	void pull(uint64_t* value) {
 		safety(sizeof(*value));
 		*value = *reinterpret_cast<const uint64_t*>(_data.c_str() + _pos);
