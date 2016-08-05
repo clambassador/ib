@@ -1,0 +1,28 @@
+big_1_boaty 2
+prefix regular {
+	cars 4
+	string boots boats
+}
+
+prefix list_double {
+	numbers 2
+	numbers 4
+	numbers 6
+}
+
+prefix outer {
+	prepop 4
+	prefix inner {
+		compound_name 10
+	}
+	postpop 6
+}
+
+#include subconf1
+
+prefix dropped {
+	item 1
+	#include subconf2
+}
+
+
