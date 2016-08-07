@@ -213,7 +213,7 @@ public:
 
 	static string stringify(const string& val) {
 		for (auto &x : val) {
-			if (!isprint(x)) {
+			if (!isprint(x) && x != '\n') {
 				return hexify((uint8_t*) val.c_str(), val.length());
 			}
 		}

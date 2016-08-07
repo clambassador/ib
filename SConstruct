@@ -9,6 +9,7 @@ tests = dict()
 tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
 tests['test_config.cc'] = 'test_config'
+tests['test_run.cc'] = 'test_run'
 
 libs = Split("""
 	     """)
@@ -20,4 +21,3 @@ for i in tests:
 	env.Program(source = ['tests/' + i] + common, target = tests[i])
 
 env.Library('ib', common)
-
