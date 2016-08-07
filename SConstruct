@@ -1,11 +1,14 @@
 import os
 for i in range(0, 10):
     print ""
-common = Split("""logger.cc
+common = Split("""config.cc
+	          logger.cc
 		  sensible_time.cc
 	       """)
 tests = dict()
+tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
+tests['test_config.cc'] = 'test_config'
 
 libs = Split("""
 	     """)
@@ -16,5 +19,5 @@ Decider('MD5')
 for i in tests:
 	env.Program(source = ['tests/' + i] + common, target = tests[i])
 
-
+env.Library('ib', common)
 
