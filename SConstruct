@@ -6,6 +6,7 @@ common = Split("""logger.cc
 	       """)
 tests = dict()
 tests['test_marshalled.cc'] = 'test_marshalled'
+tests['test_run.cc'] = 'test_run'
 
 libs = Split("""
 	     """)
@@ -17,4 +18,4 @@ for i in tests:
 	env.Program(source = ['tests/' + i] + common, target = tests[i])
 
 
-
+env.Library('ib', common)
