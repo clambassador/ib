@@ -10,6 +10,7 @@ tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
 tests['test_config.cc'] = 'test_config'
 tests['test_run.cc'] = 'test_run'
+tests['test_tokenizer.cc'] = 'test_tokenizer'
 
 libs = Split("""
 	     """)

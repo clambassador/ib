@@ -20,15 +20,9 @@ class Run {
 public:
 	Run() : Run("", vector<string>()) {}
 	Run(const string& cmd) : Run(cmd, vector<string>()) {}
-	Run(const vector<string>& argv) : Run(argv, vector<string>()) {}
 	Run(const string& cmd, const vector<string>& input) {
-		Tokenizer::split(cmd, " ", &_argv);
-		prepare_input(input);
-		_socket = 0;
-		_error = false;
-	}
-	Run(const vector<string>& argv, const vector<string>& input) {
-		_argv = argv;
+		Tokenizer::split_mind_quote(cmd, "|", &_argv);
+		Tokenizer::split_mind_quote(cmd, " ", &_argv);
 		prepare_input(input);
 		_socket = 0;
 		_error = false;

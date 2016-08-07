@@ -212,11 +212,11 @@ public:
 	}
 
 	static string stringify(const string& val) {
-		for (auto &x : val) {
-			if (!isprint(x) && x != '\n') {
-				return hexify((uint8_t*) val.c_str(), val.length());
-			}
-		}
+//		for (auto &x : val) {
+//			if (!isprint(x) && x != '\n') {
+//				return hexify((uint8_t*) val.c_str(), val.length());
+//			}
+//		}
 		return val;
 	}
 
