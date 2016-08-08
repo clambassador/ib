@@ -38,6 +38,10 @@ public:
 		}
 	}
 
+	static void add_token(const string& data, vector<string>* tokens) {
+		if (data.length()) tokens->push_back(data);
+	}
+
 	static void split(const string& data, const string& deliminator,
 		          vector<string>* tokens) {
 		size_t pos = 0;
@@ -45,10 +49,10 @@ public:
 			size_t start = pos;
 			pos = data.find(deliminator, start);
 			if (pos == string::npos) {
-				tokens->push_back(data.substr(start));
+				add_token(data.substr(start), tokens);
 				break;
 			}
-			tokens->push_back(data.substr(start, pos - start));
+			add_token(data.substr(start, pos - start), tokens);
 			pos += deliminator.length();
 		}
 	}
@@ -62,13 +66,12 @@ public:
 		while (true) {
 			pos = data.find(deliminator, pos);
 			if (pos == string::npos) {
-				tokens->push_back(data.substr(start));
+				add_token(data.substr(start), tokens);
 				break;
 			}
-			Logger::info("quote % %", pos, quote[pos]);
 			if (quote.at(pos) == '_') {
-				tokens->push_back(data.substr(start, pos - start));
-				start = pos;
+				add_token(data.substr(start, pos - start), tokens);
+				start = pos + deliminator.length();
 			}
 			pos += deliminator.length();
 		}

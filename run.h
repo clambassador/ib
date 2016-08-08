@@ -1,6 +1,8 @@
 #ifndef __IB__RUN__H__
 #define __IB__RUN__H__
 
+#include <cstdint>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -17,69 +19,110 @@ using namespace std;
 namespace ib {
 
 class Run {
+	struct PipePair {
+		PipePair() { pipe(&read_end); }
+		~PipePair() {
+			close();
+		}
+		void close() {
+			if (read_end) ::close(read_end);
+			if (write_end) ::close(write_end);
+		}
+		void set_write() {
+			::close(read_end);
+			read_end = 0;
+		}
+		void set_read() {
+			::close(write_end);
+			write_end = 0;
+		}
+
+		int read_end;
+		int write_end;
+		operator int*() {
+			return (int*) this;
+		}
+	};
+
 public:
 	Run() : Run("", vector<string>()) {}
 	Run(const string& cmd) : Run(cmd, vector<string>()) {}
 	Run(const string& cmd, const vector<string>& input) {
-		Tokenizer::split_mind_quote(cmd, "|", &_argv);
-		Tokenizer::split_mind_quote(cmd, " ", &_argv);
+		vector<string> pipeline;
+		_pipes.push_back(nullptr);
+		_pipes.back().reset(new PipePair());
+
+		Tokenizer::split_mind_quote(cmd, "|", &pipeline);
+		Logger::info("pipeline %", pipeline);
+		for (auto& x: pipeline) {
+			connect(x);
+		}
 		prepare_input(input);
-		_socket = 0;
-		_error = false;
 	}
 
-	void operator()() {
-		int socket[2];
-		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket) < 0) {
-			throw "socketpair() failed";
+	void connect(const string& cmd) {
+		_argvs.push_back(vector<string>());
+		_pipes.push_back(nullptr);
+		_pipes.back().reset(new PipePair());
+		Tokenizer::split_mind_quote(cmd, " ", &_argvs.back());
+	}
+
+protected:
+	pid_t execute(size_t pos) {
+		Logger::info("about to call %", _argvs[pos]);
+		pid_t pid = fork();
+		if (pid == -1) {
+			throw "fork(): failed";
 		}
-
-		int ret = write(socket[0], _input.c_str(), _input.length());
-		if (ret != _input.length()) throw "write() failed";
-
-		_pid = fork();
-		if (_pid == -1) {
-			close(socket[0]);
-			close(socket[1]);
-			throw "pair() failed";
-		}
-		if (_pid == 0) {
-			// child
-			const char** argv = get_c_args();
-			close(socket[0]);
-			dup2(socket[1], STDIN_FILENO);
-			dup2(socket[1], STDOUT_FILENO);
-			dup2(socket[1], STDERR_FILENO);
-
-			execv(argv[0], (char* const *) argv);
-			close(socket[1]);
+		if (pid == 0) {
+			char** argv = get_c_args(pos);
+			int i = 0;
+			while (argv[i] != nullptr) {
+				cout << argv[i] << endl;
+				++i;
+			}
+			Logger::info("done!");
+			_pipes[pos]->set_read();
+			dup2(_pipes[pos]->read_end, STDIN_FILENO);
+			// TODO: decide what to do with STDERR_FILENO
+			_pipes[pos + 1]->set_write();
+			dup2(_pipes[pos + 1]->write_end, STDOUT_FILENO);
+			execv(argv[0], (char * const *) argv);
+			Logger::error("execv failed %", errno);
+			_pipes[pos]->close();
+			_pipes[pos + 1]->close();
+			char** p = argv;
+			while (!*p++) free(*p);
 			free(argv);
 			exit(-1);
 		}
-		// parent
-		close(socket[1]);
-		_socket = socket[0];
+		_pipes[pos]->close();
+		return pid;
 	}
 
-	void wait() {
-		assert(_socket);
-		waitpid(_pid, &_status, 0);
-	}
-
-	bool error() {
-		return _error;
+public:
+	/* TODO: have a start / wait threaded one */
+	void operator()() {
+		size_t pos = 0;
+		while (pos != _argvs.size()) {
+			pid_t pid = execute(pos);
+			waitpid(pid, &_status, 0);
+			_pipes[pos]->close();
+			++pos;
+		}
+		_pipes.back()->set_read();
 	}
 
 	string read() {
 		const size_t SIZE = 4096;
-		assert(_socket);
 		stringstream ss;
+		assert(_pipes.back()->read_end);
 		char buf[SIZE];
 		while (true) {
-			int r = ::read(_socket, buf, SIZE);
+			int r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) break;
 			if (r < 0) {
-				_error = true;
+				Logger::error("read failed % %", r, errno);
 				return "";
 			}
 			ss << string(buf, r);
@@ -89,25 +132,32 @@ public:
 
 protected:
 	void prepare_input(const vector<string>& input) {
-		_input = Marshalled(input).str();
+		write(_pipes.front().get(), Marshalled(input).str());
+		_pipes.front()->close();
 	}
 
-	const char** get_c_args() {
-		const char** retval = new const char*[_argv.size() + 1];
+	void write(PipePair* pipe, const string& data) {
+		int r = ::write(pipe->write_end, data.c_str(), data.length());
+		if (r != data.length()) throw "write(): failed.";
+	}
 
-		for (size_t i = 0; i < _argv.size(); ++i) {
-			retval[i] = _argv[i].c_str();
+	char** get_c_args(int pos) {
+		char** retval = new char*[_argvs[pos].size() + 1];
+
+		for (size_t i = 0; i < _argvs[pos].size(); ++i) {
+			retval[i] = new char[_argvs[pos][i].length() + 1];
+			strncpy(retval[i], _argvs[pos][i].c_str(),
+			       _argvs[pos][i].length());
+			retval[i][_argvs[pos][i].length()] = 0;
+			Logger::info("% %", (void*)retval[i], retval[i]);
 		}
-		retval[_argv.size()] = nullptr;
+		retval[_argvs[pos].size()] = nullptr;
 		return retval;
 	}
 
-	vector<string> _argv;
+	vector<vector<string>> _argvs;
+	vector<unique_ptr<PipePair>> _pipes;
 	int _status;
-	pid_t _pid;
-	string _input;
-	int _socket;
-	bool _error;
 };
 
 }  // namespace ib

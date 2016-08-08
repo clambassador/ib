@@ -10,17 +10,13 @@ using namespace ib;
 
 int main() {
 	{
-	Run run("/home/jreardon/a.out -l toot weee", {"good"});
+	Run run("/home/jreardon/a.out -l toot weee | /bin/grep _ | /usr/bin/wc", {"good"});
 	run();
-	run.wait();
 	Logger::info("result: %", run.read());
-	assert(!run.error());
 	}
 	{
 	Run run("no way");
 	run();
-	run.wait();
 	Logger::info("result: %", run.read());
-	assert(run.error());
 	}
 }
