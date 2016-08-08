@@ -45,9 +45,10 @@ class Run {
 	};
 
 public:
-	Run() : Run("", vector<string>()) {}
-	Run(const string& cmd) : Run(cmd, vector<string>()) {}
-	Run(const string& cmd, const vector<string>& input) {
+	Run() : Run("", "") {}
+	Run(const string& cmd) : Run(cmd, "") {}
+	Run(const string& cmd, const string& input) {
+		_started = false;
 		vector<string> pipeline;
 		_pipes.push_back(nullptr);
 		_pipes.back().reset(new PipePair());
@@ -57,7 +58,7 @@ public:
 		for (auto& x: pipeline) {
 			connect(x);
 		}
-		prepare_input(input);
+		write_input(input);
 	}
 
 	void connect(const string& cmd) {
@@ -103,6 +104,8 @@ protected:
 public:
 	/* TODO: have a start / wait threaded one */
 	void operator()() {
+		assert(!_started);
+		_started = true;
 		size_t pos = 0;
 		while (pos != _argvs.size()) {
 			pid_t pid = execute(pos);
@@ -131,14 +134,10 @@ public:
 	}
 
 protected:
-	void prepare_input(const vector<string>& input) {
-		write(_pipes.front().get(), Marshalled(input).str());
-		_pipes.front()->close();
-	}
-
-	void write(PipePair* pipe, const string& data) {
-		int r = ::write(pipe->write_end, data.c_str(), data.length());
+	void write_input(const string& data) {
+		int r = ::write(_pipes.front()->write_end, data.c_str(), data.length());
 		if (r != data.length()) throw "write(): failed.";
+		_pipes.front()->close();
 	}
 
 	char** get_c_args(int pos) {
@@ -158,6 +157,7 @@ protected:
 	vector<vector<string>> _argvs;
 	vector<unique_ptr<PipePair>> _pipes;
 	int _status;
+	bool _started;
 };
 
 }  // namespace ib

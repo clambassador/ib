@@ -54,6 +54,10 @@ class Marshalled {
 		_pos = 0;
 	}
 
+	/* TODO: set a file and read from that .
+	         save to a file
+		 overload << and >> */
+
 	void pull(string* data) {
 		size_t len;
 		pull(&len);
