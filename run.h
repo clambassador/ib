@@ -89,7 +89,11 @@ protected:
 			_pipes[pos + 1]->set_write();
 			dup2(_pipes[pos + 1]->write_end, STDOUT_FILENO);
 			execv(argv[0], (char * const *) argv);
-			Logger::error("execv failed %", errno);
+			if (errno == 2) {
+				Logger::error("execv failed. did you give a full path to executable?");
+			} else {
+				Logger::error("execv failed: %", errno);
+			}
 			_pipes[pos]->close();
 			_pipes[pos + 1]->close();
 			char** p = argv;
@@ -130,6 +134,7 @@ public:
 			}
 			ss << string(buf, r);
 		}
+		Logger::info("read %", ss.str());
 		return ss.str();
 	}
 
