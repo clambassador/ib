@@ -77,6 +77,64 @@ clean:
 		ss << "\"";
 		*out = ss.str();
 	}
+
+	static string csv_read(const string& data, size_t pos) {
+		string retval = csv_read_escaped(data, pos);
+		stringstream ss;
+
+		for (size_t i = 0; i < retval.length(); ++i) {
+			if (retval[i] == '"') {
+				++i;
+				if (i < retval.length()) {
+					if (retval[i] == '"') {
+						ss << '"';
+					} else {
+						ss << retval[i];
+					}
+				}
+			} else {
+				ss << retval[i];
+			}
+		}
+		return ss.str();
+	}
+
+	static string csv_read_escaped(const string& data, size_t pos) {
+		size_t i = 0;
+		size_t curcol = 0;
+		size_t start = 0;
+		bool inquote = false;
+		--pos;  // Counting from 1 for csv. I'm sorry.
+		while (i < data.size()) {
+			if (!inquote) {
+				if (data[i] == ',') {
+					if (curcol == pos) {
+						return data.substr(start,
+								   i - start);
+					}
+					++curcol;
+					start = i + 1;
+
+				}
+				if (data[i] == '"') {
+					inquote = true;
+				}
+			}
+			if (inquote) {
+				if (data[i] == '"') {
+					if (i + 1 < data.size() &&
+					    data[i + 1] == '"') {
+						++i;
+					} else {
+						inquote = false;
+					}
+				}
+			}
+			++i;
+		}
+		if (curcol == pos) return data.substr(start);
+		return "";
+	}
 };
 
 }  // namespace ib

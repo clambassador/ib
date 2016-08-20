@@ -36,4 +36,15 @@ int main() {
 		assert(lens[i] == s.length());
 		assert(cmdlens[i] == t.length());
 	}
+
+	string row1 = "343,hello,65";
+	string row2 = "5435,\"343\"\"hello\"\"\",\"12\",3";
+
+	assert(Formatting::csv_read(row1, 1) == "343");
+	assert(Formatting::csv_read(row1, 2) == "hello");
+	assert(Formatting::csv_read(row1, 3) == "65");
+	assert(Formatting::csv_read(row2, 1) == "5435");
+	assert(Formatting::csv_read(row2, 2) == "343\"hello\"");
+	assert(Formatting::csv_read(row2, 3) == "12");
+	assert(Formatting::csv_read(row2, 4) == "3");
 }
