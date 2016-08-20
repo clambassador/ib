@@ -15,7 +15,7 @@ namespace ib {
 
 class Formatting {
 public:
-	static void escape_cmd(const string& data, string* out) {
+	static void cmd_escape(const string& data, string* out) {
 		static set<char> cmd_chars;
 		static set<char> unspeakable;
 		if (cmd_chars.empty()) {
@@ -53,7 +53,13 @@ clean:
 	/* Sets <out> to be equal to an escaped version of data
 	   conforming to RFC4180
 	 */
-	static void escape_csv(const string& data, string* out) {
+	static string csv_escape(const string& data) {
+		string retval;
+		csv_escape(data, &retval);
+		return retval;
+	}
+
+	static void csv_escape(const string& data, string* out) {
 		static set<char> csv_chars;
 		if (csv_chars.empty()) {
 			csv_chars.insert(',');
@@ -80,20 +86,24 @@ clean:
 
 	static string csv_read(const string& data, size_t pos) {
 		string retval = csv_read_escaped(data, pos);
+		return csv_unescape(retval);
+	}
+
+	static string csv_unescape(const string& data) {
 		stringstream ss;
 
-		for (size_t i = 0; i < retval.length(); ++i) {
-			if (retval[i] == '"') {
+		for (size_t i = 0; i < data.length(); ++i) {
+			if (data[i] == '"') {
 				++i;
-				if (i < retval.length()) {
-					if (retval[i] == '"') {
+				if (i < data.length()) {
+					if (data[i] == '"') {
 						ss << '"';
 					} else {
-						ss << retval[i];
+						ss << data[i];
 					}
 				}
 			} else {
-				ss << retval[i];
+				ss << data[i];
 			}
 		}
 		return ss.str();

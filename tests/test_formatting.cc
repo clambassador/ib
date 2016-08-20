@@ -30,8 +30,8 @@ int main() {
 	for (size_t i = 0; i < lens.size(); ++i) {
 		string s;
 		string t;
-		Formatting::escape_csv(strs[i], &s);
-		Formatting::escape_cmd(strs[i], &t);
+		Formatting::csv_escape(strs[i], &s);
+		Formatting::cmd_escape(strs[i], &t);
 		Logger::info("% % %", strs[i], s, t);
 		assert(lens[i] == s.length());
 		assert(cmdlens[i] == t.length());
