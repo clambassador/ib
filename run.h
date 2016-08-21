@@ -54,7 +54,6 @@ public:
 		_pipes.back().reset(new PipePair());
 
 		Tokenizer::split_mind_quote(cmd, "|", &pipeline);
-		Logger::info("pipeline %", pipeline);
 		for (auto& x: pipeline) {
 			connect(x);
 		}
@@ -70,19 +69,13 @@ public:
 
 protected:
 	pid_t execute(size_t pos) {
-		Logger::info("about to call %", _argvs[pos]);
+		Logger::info("(ib::run) calling: %", _argvs[pos]);
 		pid_t pid = fork();
 		if (pid == -1) {
 			throw "fork(): failed";
 		}
 		if (pid == 0) {
 			char** argv = get_c_args(pos);
-			int i = 0;
-			while (argv[i] != nullptr) {
-				cout << argv[i] << endl;
-				++i;
-			}
-			Logger::info("done!");
 			_pipes[pos]->set_read();
 			dup2(_pipes[pos]->read_end, STDIN_FILENO);
 			// TODO: decide what to do with STDERR_FILENO
@@ -134,7 +127,6 @@ public:
 			}
 			ss << string(buf, r);
 		}
-		Logger::info("read %", ss.str());
 		return ss.str();
 	}
 
@@ -142,7 +134,6 @@ protected:
 	void write_input(const string& data) {
 		int r = ::write(_pipes.front()->write_end, data.c_str(), data.length());
 		if (r != data.length()) throw "write(): failed.";
-		_pipes.front()->close();
 	}
 
 	char** get_c_args(int pos) {
@@ -153,7 +144,6 @@ protected:
 			strncpy(retval[i], _argvs[pos][i].c_str(),
 			       _argvs[pos][i].length());
 			retval[i][_argvs[pos][i].length()] = 0;
-			Logger::info("% %", (void*)retval[i], retval[i]);
 		}
 		retval[_argvs[pos].size()] = nullptr;
 		return retval;
