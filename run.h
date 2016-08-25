@@ -69,10 +69,22 @@ public:
 
 protected:
 	pid_t execute(size_t pos) {
+		const char& c= _argvs[pos][0][0];
+		if (c != '/' && c != '~' && c != '.') {
+			Run run("/bin/which " + _argvs[pos][0]);
+			run();
+			string s = run.read();
+			if (s.empty()) {
+				throw "which(): cannot find \"" +
+				      _argvs[pos][0] + "\"";
+			}
+			_argvs[pos][0] = s.substr(0, s.length() - 1);
+		}
 		Logger::info("(ib::run) calling: %", _argvs[pos]);
+
 		pid_t pid = fork();
 		if (pid == -1) {
-			throw "fork(): failed";
+			throw string("fork(): failed");
 		}
 		if (pid == 0) {
 			char** argv = get_c_args(pos);
@@ -133,7 +145,7 @@ public:
 protected:
 	void write_input(const string& data) {
 		int r = ::write(_pipes.front()->write_end, data.c_str(), data.length());
-		if (r != data.length()) throw "write(): failed.";
+		if (r != data.length()) throw string("write(): failed.");
 	}
 
 	char** get_c_args(int pos) {

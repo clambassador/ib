@@ -10,13 +10,21 @@ using namespace ib;
 
 int main() {
 	{
-	Run run("/home/jreardon/a.out -l toot weee | /bin/grep _ | /usr/bin/wc", {"good"});
+	Run run("head /usr/share/dict/words | grep A | wc -l");
 	run();
 	Logger::info("result: %", run.read());
 	}
 	{
-	Run run("no way");
+	Run run("wc", "hello there");
 	run();
 	Logger::info("result: %", run.read());
+	}
+	{
+	Run run("no working");
+	try {
+		run();
+	} catch (string s) {
+		Logger::info("caught %", s);
+	}
 	}
 }
