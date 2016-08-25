@@ -12,6 +12,11 @@ int main() {
 	{
 	Run run("head /usr/share/dict/words | grep A | wc -l");
 	run();
+	Logger::info("result: %", run.redirect("/tmp/garbage"));
+	}
+	{
+	Run run("cat /tmp/garbage");
+	run();
 	Logger::info("result: %", run.read());
 	}
 	{

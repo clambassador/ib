@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -125,6 +126,23 @@ public:
 		_pipes.back()->set_read();
 	}
 
+	int redirect(const string& filename) {
+		ofstream fout(filename);
+		const size_t SIZE = 4096;
+		assert(_pipes.back()->read_end);
+		int r = 0;
+		char buf[SIZE];
+		do {
+			r = ::read(_pipes.back()->read_end, buf, SIZE);
+			fout.write(buf, r);
+		} while (r > 0);
+		if (r < 0) {
+			Logger::error("read failed: % %", r, errno);
+			return -1;
+		}
+		return 0;
+	}
+
 	string read() {
 		const size_t SIZE = 4096;
 		stringstream ss;
@@ -137,7 +155,7 @@ public:
 				Logger::error("read failed % %", r, errno);
 				return "";
 			}
-			ss << string(buf, r);
+			ss.write(buf, r);
 		}
 		return ss.str();
 	}
