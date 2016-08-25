@@ -139,7 +139,7 @@ public:
 	static size_t extract_impl(size_t pos_format, const string& format,
 				   size_t pos_data, const string& data,
 				   list<string>* tokens, int cnt,
-				   T* car, ARGS... cdr) {
+				   T car, ARGS... cdr) {
 		string token = tokens->front();
 		tokens->pop_front();
 		assert(tokens->size());
@@ -167,11 +167,17 @@ public:
 
 	/* string specialization ensures that whitespace is preserved. */
 	static void extract_one(const string& in, string* out) {
+		if (!out) return;
 		*out = in;
 	}
 
+	static void extract_one(const string& in, nullptr_t out) {
+		return;
+	}
+
 	template<typename T>
-	static void extract_one(const string& in, T* out) {
+	static void extract_one(const string& in, T out) {
+		if (!out) return;
 		stringstream ss;
 		ss << in;
 		ss >> *out;

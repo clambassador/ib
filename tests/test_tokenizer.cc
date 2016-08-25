@@ -33,6 +33,11 @@ int main() {
 	assert(str1 == "preamble");
 	assert(ret == 2);
 
+	ret = Tokenizer::extract("%=%;%=%", "unread=42;other=12",
+				 nullptr, &val, &str1, nullptr);
+	assert(val == 42);
+	assert(str1 == "other");
+
 	/*
 TODO: compare format string to data string with a doubling of percents.
 TODO: allow other symbols than percent to allow reading 5 from 5%
