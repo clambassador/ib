@@ -153,9 +153,9 @@ public:
 		if (nextpos == string::npos) return 0;
 		if (tokens->front().empty()) nextpos = data.length();
 
-		stringstream ss;
-		ss << data.substr(pos_data, nextpos - pos_data);
-		ss >> *car;
+		Tokenizer::extract_one(data.substr(pos_data, nextpos -
+						   pos_data),
+				       car);
 
 		pos_data = nextpos;
 		pos_format += 1;
@@ -163,6 +163,18 @@ public:
 		return Tokenizer::extract_impl(
 			pos_format, format, pos_data, data,
 			tokens, cnt + 1, cdr...);
+	}
+
+	/* string specialization ensures that whitespace is preserved. */
+	static void extract_one(const string& in, string* out) {
+		*out = in;
+	}
+
+	template<typename T>
+	static void extract_one(const string& in, T* out) {
+		stringstream ss;
+		ss << in;
+		ss >> *out;
 	}
 
 	// base case
