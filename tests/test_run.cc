@@ -32,4 +32,16 @@ int main() {
 		Logger::info("caught %", s);
 	}
 	}
+
+	{
+	Run run("cat /usr/share/dict/words | grep B | wc -l");
+	run();
+	Logger::info("result: %", run.read());
+	}
+
+	{
+	Run run("cat /usr/share/dict/words | cat | cat | cat");
+	run();
+	Logger::info("result (length): %", run.read().length());
+	}
 }
