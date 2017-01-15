@@ -118,9 +118,7 @@ public:
 		_started = true;
 		size_t pos = 0;
 		while (pos != _argvs.size()) {
-			pid_t pid = execute(pos);
-			waitpid(pid, &_status, 0);
-			_pipes[pos]->close();
+			_pids.push_back(execute(pos));
 			++pos;
 		}
 		_pipes.back()->set_read();
@@ -146,11 +144,19 @@ public:
 	string read() {
 		const size_t SIZE = 4096;
 		stringstream ss;
+		assert(_pipes.size());
+		assert(_pids.size());
 		assert(_pipes.back()->read_end);
 		char buf[SIZE];
+		size_t pid_pos = 0;
 		while (true) {
 			int r = ::read(_pipes.back()->read_end, buf, SIZE);
-			if (r == 0) break;
+			if (r == 0) {
+				waitpid(_pids[pid_pos++], &_status, 0);
+				Logger::info("(run) pid % finished %",
+					     _pids[pid_pos], _status);
+				if (pid_pos == _pids.size()) break;
+			}
 			if (r < 0) {
 				Logger::error("read failed % %", r, errno);
 				return "";
@@ -181,6 +187,7 @@ protected:
 
 	vector<vector<string>> _argvs;
 	vector<unique_ptr<PipePair>> _pipes;
+	vector<pid_t> _pids;
 	int _status;
 	bool _started;
 };
