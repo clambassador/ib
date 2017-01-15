@@ -33,6 +33,7 @@ public:
 		     << stringify(format, args...) << endl;
 	}
 
+	static void error() {}
 	template<typename... Args>
 	static void error(const char* format, Args... args) {
 		unique_lock<mutex> lock(*_mutex.get());
@@ -203,6 +204,8 @@ public:
 		ss << ">";
 		return ss.str();
 	}
+
+	static string stringify() { return ""; }
 
 	template<typename T>
 	static string stringify(const T& val) {

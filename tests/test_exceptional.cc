@@ -28,6 +28,5 @@ int main() {
 	LOG_IF(5 < 3, "world");
 	LOG_IF(5 > 3, "there");
 
-
 	ASSERT(5 < 3, "Only panic if % is less than %", 5 , 3);
 }
