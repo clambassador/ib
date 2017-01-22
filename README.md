@@ -1,6 +1,5 @@
 # ib
-The ib project is a collection of simple routines for simplifying routine tasks
-in C++ programming.
+The ib project is a collection of simple routines for simplifying routine tasks in C++ programming.
 
 It was designed by iteratively using it and improving the
 interface for programmer's usability.
