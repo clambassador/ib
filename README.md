@@ -1,9 +1,9 @@
 # ib
-
 The ib project is a collection of simple routines for simplifying routine tasks
-in C++ programming. It was designed by iteratively using it and improving the
-interface for programmer's usability. They are meant to be natural to use and
-general purpose.
+in C++ programming.
+
+It was designed by iteratively using it and improving the
+interface for programmer's usability.
 
 At the moment it consists of the following:
 
@@ -14,6 +14,7 @@ and colours.
 - sensible_time: gives program runtime in seconds or microseconds.
 - config: a parser to create a configuration list.
 - limiter: a class that slows down a repeated operation if, e.g., it fails.
+- tokenizer: a class to extract substrings from a string by pattern matching
 
 ## Config
 
@@ -58,3 +59,31 @@ The constructor takes a list of up to 6 numbers: how many times to wait at each
 milliseconds. The sum of the numbers is how many times it will return false
 before true; the dot product with the levels is how long it will sleep before
 returning true.
+
+## Tokenizer
+
+Tokenizer does two main things: splitting a string into tokens and extracting
+tokens from a string.
+
+split turns a string and deliminator string into a vector of strings that are
+the pieces between all deliminators. It also has split_with_empty which adds
+empty strings and split_mind_quote which ignores tokens inside quotation marks.
+
+extract takes a format, the data string, and a variable number of points to data
+objects which get filled in with data. For example, if format is
+"%<%>%", data is "#include <string>", then the function expects three more
+pointer arguments. If they are &s1, &s2, &s3, then the function will return 3
+(the number of filled in arguments) and s1=="#include", s2=="string", s3="".
+
+Arguments can be nullptr, in which case they are ignored. They can be pointers
+to other types, like ints. They need only have a istream operator>> to populate
+them.
+
+As an example, suppose data was an html webpage. Then extracting all the hrefs
+that are surrounded with quotes into a vector<string> result could be done as follows:
+
+while (extract("%<a%href="%"%>%", data, nullptr, nullptr, &href, nullptr, &remainder) >= 3) {
+	data = remainder;
+	result.push_back(href);
+}
+
