@@ -143,7 +143,7 @@ clean:
 			++i;
 		}
 		if (curcol == pos) return data.substr(start);
-		return "";
+		throw string("No column.");
 	}
 };
 
