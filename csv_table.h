@@ -72,6 +72,11 @@ public:
 		_columns[column] = data;
 	}
 
+	virtual string get_header(size_t column) {
+		assert(column < _headers.size());
+		return _headers[column];
+	}
+
 protected:
 	virtual void start_write() {
 		_newline = true;

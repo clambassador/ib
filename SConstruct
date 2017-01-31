@@ -14,6 +14,7 @@ tests['test_tokenizer.cc'] = 'test_tokenizer'
 tests['test_formatting.cc'] = 'test_formatting'
 tests['test_exceptional.cc'] = 'test_exceptional'
 tests['test_csv_table.cc'] = 'test_csv_table'
+tests['test_csv_recode.cc'] = 'test_csv_recode'
 
 libs = Split("""
 	     """)
