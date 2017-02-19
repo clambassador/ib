@@ -15,10 +15,11 @@ tests['test_formatting.cc'] = 'test_formatting'
 tests['test_exceptional.cc'] = 'test_exceptional'
 tests['test_csv_table.cc'] = 'test_csv_table'
 tests['test_csv_recode.cc'] = 'test_csv_recode'
+tests['test_wait_queue.cc'] = 'test_wait_queue'
 
 libs = Split("""
 	     """)
-env = Environment(CXX="ccache clang++ -I..", CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11 -pthread", LIBS=libs, CPPPATH="..")
+env = Environment(CXX="ccache clang++ -I.. -pthread", CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'
 
 Decider('MD5')
