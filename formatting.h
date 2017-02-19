@@ -129,8 +129,7 @@ clean:
 				if (data[i] == '"') {
 					inquote = true;
 				}
-			}
-			if (inquote) {
+			} else if (inquote) {
 				if (data[i] == '"') {
 					if (i + 1 < data.size() &&
 					    data[i + 1] == '"') {

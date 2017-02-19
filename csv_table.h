@@ -44,10 +44,10 @@ public:
 		}
 	}
 
-	virtual void save(const string& csv_file) {
+	virtual bool save(const string& csv_file) {
 		start_write();
 		ofstream fout(csv_file);
-		if (_columns.empty()) return;
+		if (_columns.empty()) return false;
 
 		for (size_t i = 0; i < _headers.size(); ++i) {
 			csv_write(&fout, _headers[i]);
@@ -59,12 +59,12 @@ public:
 			}
 			write_newline(&fout);
 		}
+		return true;
 	}
 
-
-	virtual const vector<string>& project(size_t column) {
+	virtual const vector<string>& project(size_t column) const {
 		assert(column < _columns.size());
-		return _columns[column];
+		return _columns.at(column);
 	}
 
 	virtual void project(size_t column, const vector<string>& data) {
@@ -74,7 +74,11 @@ public:
 
 	virtual string get_header(size_t column) {
 		assert(column < _headers.size());
-		return _headers[column];
+		return _headers.at(column);
+	}
+
+	virtual const vector<string>& headers() const {
+		return _headers;
 	}
 
 protected:
