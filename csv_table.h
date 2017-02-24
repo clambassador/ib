@@ -72,6 +72,16 @@ public:
 		_columns[column] = data;
 	}
 
+	virtual void insert_column(size_t column,
+				   const string& name,
+				   const vector<string>& data) {
+		auto x = _headers.begin();
+		auto y = _columns.begin();
+		for (int i = 0; i < column; ++i, ++x, ++y);
+		_headers.insert(x, name);
+		_columns.insert(y, data);
+	}
+
 	virtual string get_header(size_t column) {
 		assert(column < _headers.size());
 		return _headers.at(column);
