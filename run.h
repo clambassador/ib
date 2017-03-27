@@ -124,6 +124,10 @@ public:
 		_pipes.back()->set_read();
 	}
 
+	int result() const {
+		return _status;
+	}
+
 	int redirect(const string& filename) {
 		ofstream fout(filename);
 		const size_t SIZE = 4096;
