@@ -13,6 +13,7 @@
 
 #include "ib/logger.h"
 #include "ib/marshalled.h"
+#include "ib/sensible_time.h"
 #include "ib/tokenizer.h"
 
 using namespace std;
@@ -50,6 +51,7 @@ public:
 	Run(const string& cmd) : Run(cmd, "") {}
 	Run(const string& cmd, const string& input) {
 		_started = false;
+		_read = false;
 		vector<string> pipeline;
 		_pipes.push_back(nullptr);
 		_pipes.back().reset(new PipePair());
@@ -109,10 +111,25 @@ protected:
 		}
 		_pipes[pos]->close();
 		return pid;
+
+	}
+
+	void abort_run(int when) {
+		int now = sensible_time::runtime();
+		while (!_done && (now + when > sensible_time::runtime())) {
+			sleep(1);
+			Logger::info("earlier % when % now %",
+				     now, when, sensible_time::runtime());
+		}
+		if (_done) return;
+
+		for (auto &x : _pids) {
+			kill(x, SIGKILL);
+		}
+
 	}
 
 public:
-	/* TODO: have a start / wait threaded one */
 	void operator()() {
 		assert(!_started);
 		_started = true;
@@ -124,7 +141,8 @@ public:
 		_pipes.back()->set_read();
 	}
 
-	int result() const {
+	int result() {
+		if (!_read) read();
 		return _status;
 	}
 
@@ -146,6 +164,11 @@ public:
 	}
 
 	string read() {
+		return read(1000);
+	}
+
+	string read(int runtime) {
+		_read = true;
 		const size_t SIZE = 4096;
 		stringstream ss;
 		assert(_pipes.size());
@@ -153,6 +176,10 @@ public:
 		assert(_pipes.back()->read_end);
 		char buf[SIZE];
 		size_t pid_pos = 0;
+
+		_done = false;
+		thread kill_thread(bind(&Run::abort_run, this, runtime));
+
 		while (true) {
 			int r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) {
@@ -167,6 +194,8 @@ public:
 			}
 			ss.write(buf, r);
 		}
+		_done = true;
+		kill_thread.join();
 		return ss.str();
 	}
 
@@ -193,6 +222,8 @@ protected:
 	vector<unique_ptr<PipePair>> _pipes;
 	vector<pid_t> _pids;
 	int _status;
+	bool _read;
+	bool _done;
 	bool _started;
 };
 
