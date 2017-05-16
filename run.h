@@ -118,8 +118,6 @@ protected:
 		int now = sensible_time::runtime();
 		while (!_done && (now + when > sensible_time::runtime())) {
 			sleep(1);
-			Logger::info("earlier % when % now %",
-				     now, when, sensible_time::runtime());
 		}
 		if (_done) return;
 
