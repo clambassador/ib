@@ -38,6 +38,19 @@ public:
 		}
 	}
 
+	static string replace(const string& data, const string& find,
+			      const string& replacement) {
+		vector<string> pieces;
+		split(data, find, &pieces);
+		if (pieces.size() == 1) return data;
+		stringstream ss;
+		ss << pieces[0];
+		for (int i = 1; i < pieces.size(); ++i) {
+		     ss << replacement << pieces[i];
+		}
+		return ss.str();
+	}
+
 	static void add_token(const string& data, vector<string>* tokens) {
 		if (data.length()) tokens->push_back(data);
 	}
@@ -90,6 +103,24 @@ public:
 			}
 			pos += deliminator.length();
 		}
+	}
+
+	static size_t extract_all(const string& format,
+				  const string& data,
+				  vector<string>* results) {
+		assert(results);
+		int ret;
+		string rest = data;
+		assert(format.at(format.length() - 1) != '%');
+		while (true) {
+			string tmp, result;
+			ret = extract("%" + format + "%", rest, nullptr,
+				      &result, &tmp);
+			if (ret == 3) results->push_back(result);
+			else break;
+			rest = tmp;
+		}
+		return results->size();
 	}
 
 	template<typename... ARGS>
