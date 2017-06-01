@@ -42,7 +42,7 @@ public:
 			      const string& replacement) {
 		vector<string> pieces;
 		split(data, find, &pieces);
-		if (pieces.size() == 1) return data;
+		if (pieces.size() < 2) return data;
 		stringstream ss;
 		ss << pieces[0];
 		for (int i = 1; i < pieces.size(); ++i) {
