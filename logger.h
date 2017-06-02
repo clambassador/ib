@@ -27,7 +27,7 @@ namespace ib {
 class Logger {
 public:
 	template<typename... Args>
-	static void info(const char* format, Args... args) {
+	static void info(const char* format, const Args&... args) {
 		unique_lock<mutex> lock(*_mutex.get());
 		cout << "\033[1;36m" << runtime() << " INFO: \033[0m "
 		     << stringify(format, args...) << endl;
@@ -35,28 +35,28 @@ public:
 
 	static void error() {}
 	template<typename... Args>
-	static void error(const char* format, Args... args) {
+	static void error(const char* format, const Args&... args) {
 		unique_lock<mutex> lock(*_mutex.get());
 		cerr << "\033[1;31m" << runtime() << " ERROR: \033[0m"
 		     << stringify(format, args...) << endl;
 	}
 
 	template<typename... Args>
-	static void alert(const char* format, Args... args) {
+	static void alert(const char* format, const Args&... args) {
 		unique_lock<mutex> lock(*_mutex.get());
 		cout << "\033[5;33m" << runtime() << " ALERT: \033[0m"
 		     << stringify(format, args...) << endl;
 	}
 
 	template<typename... Args>
-	static void debug(const char* format, Args... args) {
+	static void debug(const char* format, const Args&... args) {
 		unique_lock<mutex> lock(*_mutex.get());
 		cout << "\033[1;35m" << runtime() << " DEBUG: \033[0m"
 		     << stringify(format, args...) << endl;
 	}
 
 	template<typename... Args>
-	static void kernel(const char* format, Args... args) {
+	static void kernel(const char* format, const Args&... args) {
 		unique_lock<mutex> lock(*_mutex.get());
 		FILE *f = fopen("/dev/kmsg", "a");
 		if (f) {
@@ -70,7 +70,7 @@ public:
 	}
 
 	template<typename... Args>
-	static void file(int fd, const char* format, Args... args) {
+	static void file(int fd, const char* format, const Args&... args) {
 		if (!fd) {
 			return;
 		}
@@ -115,14 +115,15 @@ public:
 	}
 
 	template<typename... Args>
-	static string stringify(const char* format, Args... args) {
+	static string stringify(const char* format, const Args&... args) {
 		stringstream ss;
 		stringify(ss, format, args...);
 		return ss.str();
 	}
 
 	template<typename T, typename... Args>
-	static void stringify(stringstream& ss, const char* format, T& value, Args... args) {
+	static void stringify(stringstream& ss, const char* format, T& value,
+			      const Args&... args) {
 		while (*format) {
 			if (*format == '%') {
 				if (*(format + 1) == '%') {
@@ -208,6 +209,12 @@ public:
 	static string stringify() { return ""; }
 
 	template<typename T>
+	static string stringify(const unique_ptr<T>& val) {
+		if (val.get()) return val->trace();
+		return "";
+	}
+
+	template<typename T>
 	static string stringify(const T& val) {
 		stringstream ss;
 		ss << val;
@@ -223,7 +230,7 @@ public:
 		return val;
 	}
 
-	static string hexify(uint8_t* data, uint32_t len){
+	static string hexify(uint8_t* data, uint32_t len) {
                 char hv[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
                 stringstream ss;
                 for (size_t i = 0; i < len; ++i) {
