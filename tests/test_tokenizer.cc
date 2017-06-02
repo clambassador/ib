@@ -38,6 +38,23 @@ int main() {
 	assert(val == 42);
 	assert(str1 == "other");
 
+	ret = Tokenizer::extract("test%\4%", "test42\thello",
+				 &val, &str1);
+	assert(val == 42);
+	assert(str1 == "hello");
+	ret = Tokenizer::extract("test%\4%", "test42 hello",
+				 &val, &str1);
+	assert(val == 42);
+	assert(str1 == "hello");
+	ret = Tokenizer::extract("test%\4%", "test42\nhello",
+				 &val, &str1);
+	assert(val == 42);
+	assert(str1 == "hello");
+	ret = Tokenizer::extract("test%\4%", "test42\rhello",
+				 &val, &str1);
+	assert(val == 42);
+	assert(str1 == "hello");
+
 	/*
 TODO: compare format string to data string with a doubling of percents.
 TODO: allow other symbols than percent to allow reading 5 from 5%

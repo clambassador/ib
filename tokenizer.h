@@ -51,6 +51,14 @@ public:
 		return ss.str();
 	}
 
+	template<typename T>
+	static void last_token(const string& in, const string& delim, T out) {
+		int pos = in.find_last_of(delim);
+		if (pos != string::npos) {
+			extract_one(in.substr(pos + delim.length()), out);
+		}
+	}
+
 	static void add_token(const string& data, vector<string>* tokens) {
 		if (data.length()) tokens->push_back(data);
 	}
@@ -166,6 +174,51 @@ public:
 		}
 	}
 
+	static size_t token_match(const string& data, const string& token,
+				  int pos) {
+		int whitepos = token.find_last_of("\4");
+		if (whitepos == string::npos)
+			return data.find(token, pos);
+		else if (whitepos == 0) {
+			size_t retval = string::npos;
+			set<char> whitespace;
+			whitespace.insert(' ');
+			whitespace.insert('\n');
+			whitespace.insert('\r');
+			whitespace.insert('\t');
+			for (char c : whitespace) {
+				string testtoken = token;
+				testtoken[0] = c;
+				int candidate = data.find(testtoken, pos);
+				if (candidate < retval) retval = candidate;
+			}
+			return retval;
+		}
+		Logger::debug("(tokenizer) error in match %. Put whitespace at"
+			      " start", token);
+		assert(0);
+		return 0;
+	}
+
+	static bool check_token_match(const string& data, const string& token) {
+		if (!token.length()) {
+			if (!data.length()) return true;
+			return false;
+		}
+		if (data.substr(1, data.length()) !=
+		    token.substr(1, token.length())) return false;
+		if (data[0] == token[0]) return true;
+		set<char> whitespace;
+		whitespace.insert(' ');
+		whitespace.insert('\n');
+		whitespace.insert('\r');
+		whitespace.insert('\t');
+		whitespace.insert('\4');
+		if (whitespace.count(data[0]) &&
+		    whitespace.count(token[0])) return true;
+		return false;
+	}
+
 	template<typename T, typename... ARGS>
 	static size_t extract_impl(size_t pos_format, const string& format,
 				   size_t pos_data, const string& data,
@@ -174,12 +227,13 @@ public:
 		string token = tokens->front();
 		tokens->pop_front();
 		assert(tokens->size());
-		assert(format.substr(pos_format, token.length()) ==
-		       data.substr(pos_data, token.length()));
+		assert(check_token_match(
+			data.substr(pos_data, token.length()),
+			format.substr(pos_format, token.length())));
 		pos_format += token.length();
 		pos_data += token.length();
 
-		size_t nextpos = data.find(tokens->front(), pos_data);
+		size_t nextpos = token_match(data, tokens->front(), pos_data);
 
 		if (nextpos == string::npos) return 0;
 		if (tokens->front().empty()) nextpos = data.length();
