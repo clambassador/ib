@@ -55,6 +55,15 @@ int main() {
 	assert(val == 42);
 	assert(str1 == "hello");
 
+	vector<string> inner;
+	ret = Tokenizer::extract_all_paired(
+		"{", "}", "{{hello}there}{great}{{}{}{}}", &inner);
+	Logger::info("%", inner);
+
+	assert(inner[0] == "{hello}there");
+	assert(inner[1] == "great");
+	assert(inner[2] == "{}{}{}");
+
 	/*
 TODO: compare format string to data string with a doubling of percents.
 TODO: allow other symbols than percent to allow reading 5 from 5%

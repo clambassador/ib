@@ -113,6 +113,42 @@ public:
 		}
 	}
 
+	static size_t extract_all_paired(const string& left,
+					 const string& right,
+				  	 const string& data,
+					 vector<string>* results) {
+		assert(results);
+		assert(left != right);
+		int depth = 0;
+		for (int i = 0; i < data.length(); ++i) {
+			if (data.substr(i, left.length()) == left) {
+				i += left.length();
+				assert(!depth);
+				depth = 1;
+				for (int j = i; j < data.length(); ++j) {
+					if (data.substr(j, left.length()) ==
+					    left) {
+						++depth;
+					} else if (data.substr(j, right.length())
+						   == right) {
+						--depth;
+					}
+					if (!depth) {
+						results->push_back(data.substr(
+							i, j - right.length()
+							     - i + 1));
+						break;
+					}
+				}
+				if (depth) {
+					Logger::info("data %", data);
+					depth = 0;
+				}
+			}
+		}
+		return results->size();
+	}
+
 	static size_t extract_all(const string& format,
 				  const string& data,
 				  vector<string>* results) {
