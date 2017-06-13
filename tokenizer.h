@@ -141,7 +141,6 @@ public:
 					}
 				}
 				if (depth) {
-					Logger::info("data %", data);
 					depth = 0;
 				}
 			}
