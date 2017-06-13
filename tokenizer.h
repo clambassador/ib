@@ -63,6 +63,16 @@ public:
 		if (data.length()) tokens->push_back(data);
 	}
 
+	static string trimout(const string &data, const string& delimitor) {
+		stringstream ss;
+		vector<string> pieces;
+		split(data, delimitor, &pieces);
+		for (const auto &x : pieces) {
+			ss << x;
+		}
+		return ss.str();
+	}
+
 	static void split(const string& data, const string& deliminator,
 		          vector<string>* tokens) {
 		size_t pos = 0;
