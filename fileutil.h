@@ -17,6 +17,18 @@ namespace ib {
 
 class Fileutil {
 public:
+	static int read_binary_file(const string& file_name,
+			     string* output) {
+		if (file_name.empty()) return -1;
+		ifstream fin(file_name, ios::in | ios::binary);
+		assert(fin.good());
+		stringstream buffer;
+		buffer << fin.rdbuf();
+		assert(fin.good());
+		*output = buffer.str();
+		return 0;
+	}
+
 	static int read_file(const string& file_name,
 			     string* output) {
 		if (file_name.empty()) return -1;
