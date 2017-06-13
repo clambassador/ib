@@ -38,6 +38,26 @@ public:
 		}
 	}
 
+	static string hex_unescape(const string& data) {
+		vector<string> pieces;
+		split(data, "%", &pieces);
+		if (pieces.size() < 2) return data;
+		stringstream ss;
+		ss << pieces[0];
+		for (int i = 1; i < pieces.size(); ++i) {
+			if (pieces[i].length() < 2)
+				ss << "%" << pieces[i];
+			else {
+				stringstream hexparse;
+				int val;
+				hexparse << hex << pieces[i].substr(0, 2);
+				hexparse >> val;
+				ss << (char) val << pieces[i].substr(2);
+			}
+		}
+		return ss.str();
+	}
+
 	static string replace(const string& data, const string& find,
 			      const string& replacement) {
 		vector<string> pieces;

@@ -64,6 +64,10 @@ int main() {
 	assert(inner[1] == "great");
 	assert(inner[2] == "{}{}{}");
 
+	str1 = "hex%20is%20%41!";
+	Logger::info("% to %", str1, Tokenizer::hex_unescape(str1));
+	assert("hex is A!" == Tokenizer::hex_unescape(str1));
+
 	/*
 TODO: compare format string to data string with a doubling of percents.
 TODO: allow other symbols than percent to allow reading 5 from 5%
