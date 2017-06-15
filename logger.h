@@ -239,6 +239,15 @@ public:
                 return ss.str();
         }
 
+	static string lower_hexify(uint8_t* data, uint32_t len) {
+                char hv[16]={'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+                stringstream ss;
+                for (size_t i = 0; i < len; ++i) {
+                        ss << hv[((data[i] >> 4) & 0x0F)] << hv[data[i] & 0x0F];
+                }
+                return ss.str();
+        }
+
 	static string runtime() {
 		stringstream ss;
 		ss << setw(5);
