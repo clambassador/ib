@@ -163,6 +163,14 @@ class Marshalled {
 		_pos += sizeof(*value);
 	}
 
+	void pull(bool* value) {
+		int8_t boolvalue;
+		safety(sizeof(boolvalue));
+		boolvalue = *reinterpret_cast<const int8_t*>(_data.c_str() + _pos);
+		_pos += sizeof(boolvalue);
+		*value = boolvalue;
+	}
+
 	template<typename CAR, typename... CDR>
 	void push(const CAR& car, const CDR&... cdr) {
 		push(car);
@@ -235,6 +243,11 @@ class Marshalled {
 
 	void push(const int8_t& value) {
 		_ss.write(reinterpret_cast<const char*>(&value), sizeof(value));
+	}
+
+	void push(const bool& value) {
+		int8_t boolvalue = value;
+		_ss.write(reinterpret_cast<const char*>(&boolvalue), sizeof(boolvalue));
 	}
 
 	string str() { return _ss.str(); }
