@@ -45,6 +45,7 @@ int main(int argc, char** argv) {
 			vector<string> row;
 			table.get_row(i, &row);
 			for (size_t j = 0; j < row.size(); ++j) {
+				if (headers[j].empty()) continue;
 				fout << "\t\t<" << headers[j]
 				     << ">" << row[j]
 				     << "</" << headers[j]
