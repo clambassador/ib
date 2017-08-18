@@ -41,6 +41,21 @@ public:
 		return 0;
 	}
 
+	static string maybe_strip_extension(const string& extension,
+					    const string& filename) {
+		assert(!extension.empty());
+		assert(extension[0] != '.');
+		assert(!filename.empty());
+		if (filename.length() > extension.length() &&
+		    filename.substr(filename.length() - extension.length() - 1)
+		    == "." + extension) {
+			return filename.substr(0, filename.length() -
+					       extension.length() - 1);
+		}
+
+		return filename;
+	}
+
 	static int read_file(const string& file_name,
 			     vector<string>* output) {
 		if (file_name.empty()) return -1;
@@ -66,7 +81,6 @@ public:
 		struct dirent* result;
 		while (!readdir_r(dir, &entry, &result)) {
 			if (!result) break;
-			Logger::info("file name %", entry.d_name);
 			files->push_back(entry.d_name);
 		}
 		return 0;
@@ -83,7 +97,6 @@ public:
 				ss << x.substr(0, extension.length() - 1);
 				int num;
 				ss >> num;
-				Logger::info("file % num %", x, num);
 				if (num > curmax) {
 					curmax = num;
 				}

@@ -67,6 +67,16 @@ public:
 		return _columns.at(column);
 	}
 
+	virtual size_t rows() const {
+		return _columns.at(0).size();
+	}
+
+	virtual void get_row(size_t row, vector<string> *data) const {
+		for (size_t i = 0; i < _headers.size(); ++i) {
+			data->push_back(_columns.at(i).at(row));
+		}
+	}
+
 	virtual void project(size_t column, const vector<string>& data) {
 		assert(column < _columns.size());
 		_columns[column] = data;

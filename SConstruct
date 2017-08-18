@@ -17,6 +17,7 @@ tests['test_exceptional.cc'] = 'test_exceptional'
 tests['test_csv_table.cc'] = 'test_csv_table'
 tests['test_wait_queue.cc'] = 'test_wait_queue'
 tests['add_csv.cc'] = 'add_csv'
+tests['csv_to_xml.cc'] = 'csv_to_xml'
 
 libs = Split("""
 	     """)
