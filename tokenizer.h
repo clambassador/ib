@@ -72,11 +72,13 @@ public:
 	}
 
 	template<typename T>
-	static void last_token(const string& in, const string& delim, T out) {
+	static int last_token(const string& in, const string& delim, T out) {
 		int pos = in.find_last_of(delim);
 		if (pos != string::npos) {
 			extract_one(in.substr(pos + delim.length()), out);
+			return 1;
 		}
+		return 0;
 	}
 
 	static void add_token(const string& data, vector<string>* tokens) {
