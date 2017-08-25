@@ -345,6 +345,36 @@ public:
 		assert(format.substr(pos_format) == tokens->front());
 		return cnt;
 	}
+
+	template<typename... Args>
+	static int get_lines_matching(vector<string>* out, const string& data,
+				      Args... args) {
+		vector<string> tokens;
+		split(data, "\n", &tokens);
+		return get_lines_matching_impl(out, tokens, args...);
+	}
+
+	template<typename... Args>
+	static int get_lines_matching_impl(vector<string>* out,
+					   const vector<string>& lines,
+					   const string& car,
+					   Args... cdr) {
+		vector<string> result;
+		get_lines_matching_impl(&result, lines, cdr...);
+		for (auto &x : result) {
+			if (x.find(car) != string::npos) {
+				out->push_back(x);
+			}
+		}
+		return out->size();
+	}
+
+	static int get_lines_matching_impl(vector<string>* out,
+					   const vector<string>& lines) {
+		assert(out);
+		*out = lines;
+		return out->size();
+	}
 };
 
 }  // namespace ib

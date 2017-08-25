@@ -68,6 +68,25 @@ int main() {
 	Logger::info("% to %", str1, Tokenizer::hex_unescape(str1));
 	assert("hex is A!" == Tokenizer::hex_unescape(str1));
 
+
+
+	string s = "b\na\naa\nab\nbb\nba\naabbba\naaaaaaaa no\nbbbba";
+	vector<string> out;
+	Tokenizer::get_lines_matching(&out, s, "a", "b");
+	Logger::info("a and b  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s, "b", "a");
+	Logger::info("b and a  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s, "a", "bb");
+	Logger::info("a and bb  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s, "a");
+	Logger::info("a  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s);
+	Logger::info("   % ", out);
+
 	/*
 TODO: compare format string to data string with a doubling of percents.
 TODO: allow other symbols than percent to allow reading 5 from 5%
