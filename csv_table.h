@@ -34,12 +34,20 @@ public:
 			}
 		} catch (string s) {
 		}
-
 		for (int line = 1; line < lines.size(); ++line) {
-			string s = lines[line];
-			for (int i = 0; i < _columns.size(); ++i) {
-				_columns[i].push_back(
-				    Formatting::csv_read(s, i + 1));
+				string s = lines[line];
+			try {
+				for (int i = 0; i < _columns.size(); ++i) {
+					_columns[i].push_back(
+					    Formatting::csv_read(s, i + 1));
+				}
+			} catch (string s) {
+				size_t len = _columns[_columns.size() - 1].size();
+				for (int i = 0; i < _columns.size(); ++i) {
+					if (_columns[i].size() > len) {
+						_columns[i].pop_back();
+					}
+				}
 			}
 		}
 	}

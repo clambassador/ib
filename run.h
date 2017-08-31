@@ -96,6 +96,7 @@ protected:
 			// TODO: decide what to do with STDERR_FILENO
 			_pipes[pos + 1]->set_write();
 			dup2(_pipes[pos + 1]->write_end, STDOUT_FILENO);
+			Logger::error("about to run %", argv[0]);
 			execv(argv[0], (char * const *) argv);
 			if (errno == 2) {
 				Logger::error("execv failed. did you give a full path to executable?");
@@ -132,6 +133,7 @@ public:
 		assert(!_started);
 		_started = true;
 		size_t pos = 0;
+		_pipes.front()->set_write();
 		while (pos != _argvs.size()) {
 			_pids.push_back(execute(pos));
 			++pos;
@@ -144,19 +146,28 @@ public:
 		return _status;
 	}
 
+	/* TODO: move read and redirect to a single stream based runner */
 	int redirect(const string& filename) {
 		ofstream fout(filename);
 		const size_t SIZE = 4096;
 		assert(_pipes.back()->read_end);
 		int r = 0;
+		size_t pid_pos = 0;
 		char buf[SIZE];
-		do {
+		while (true) {
+			Logger::info("about to read, last %", r);
 			r = ::read(_pipes.back()->read_end, buf, SIZE);
+			if (r == 0) {
+				waitpid(_pids[pid_pos++], &_status, 0);
+				Logger::info("(run) pid % finished %",
+					     _pids[pid_pos], _status);
+				if (pid_pos == _pids.size()) break;
+			}
+			if (r < 0) {
+				Logger::error("read failed: % %", r, errno);
+				return -1;
+			}
 			fout.write(buf, r);
-		} while (r > 0);
-		if (r < 0) {
-			Logger::error("read failed: % %", r, errno);
-			return -1;
 		}
 		return 0;
 	}
@@ -177,9 +188,10 @@ public:
 
 		_done = false;
 		thread kill_thread(bind(&Run::abort_run, this, runtime));
-
+		int r = 0;
 		while (true) {
-			int r = ::read(_pipes.back()->read_end, buf, SIZE);
+			Logger::info("about to read last %", r);
+			r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) {
 				waitpid(_pids[pid_pos++], &_status, 0);
 				Logger::info("(run) pid % finished %",

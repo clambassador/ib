@@ -142,6 +142,8 @@ clean:
 			++i;
 		}
 		if (curcol == pos) return data.substr(start);
+		Logger::error("Bad parse %", data);
+
 		throw string("No column.");
 	}
 };
