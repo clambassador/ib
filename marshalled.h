@@ -67,6 +67,16 @@ class Marshalled {
 	}
 
 	template<typename T>
+	void pull(vector<T*>* items) {
+		size_t len;
+		pull(&len);
+		for (size_t i = 0; i < len; ++i) {
+			items->push_back(new T());
+			pull(items->back());
+		}
+	}
+
+	template<typename T>
 	void pull(vector<T>* items) {
 		size_t len;
 		pull(&len);
@@ -88,7 +98,7 @@ class Marshalled {
 	}
 
 	template<typename T, typename R>
-	void pull(const map<T, R>& items) {
+	void pull(map<T, R>* items) {
 		size_t len;
 		pull(&len);
 		for (size_t i = 0; i < len; ++i) {
@@ -96,7 +106,7 @@ class Marshalled {
 			R r;
 			pull(&t);
 			pull(&r);
-			items->insert(t, r);
+			(*items)[t] = r;
 		}
 	}
 
@@ -184,19 +194,29 @@ class Marshalled {
 
 	template<typename T>
 	void push(const vector<T>& items) {
-		push(items.size());
+		size_t len = items.size();
+		push(len);
 		for (const auto &x : items) push(x);
 	}
 
 	template<typename T>
+	void push(const vector<T*>& items) {
+		size_t len = items.size();
+		push(len);
+		for (const auto &x : items) push(*x);
+	}
+
+	template<typename T>
 	void push(const set<T>& items) {
-		push(items.size());
+		size_t len = items.size();
+		push(len);
 		for (const auto &x : items) push(x);
 	}
 
 	template<typename T, typename R>
 	void push(const map<T, R>& items) {
-		push<size_t>(items.size());
+		size_t len = items.size();
+		push(len);
 		for (const auto &x : items) {
 			push(x.first);
 			push(x.second);
@@ -213,6 +233,10 @@ class Marshalled {
 	/* I choose not to support endianness.
 	   Only use this if you have big-endian architecture.
 	 */
+	void push(const size_t&& value) {
+		_ss.write(reinterpret_cast<const char*>(&value), sizeof(value));
+	}
+
 	void push(const uint64_t& value) {
 		_ss.write(reinterpret_cast<const char*>(&value), sizeof(value));
 	}
@@ -262,7 +286,7 @@ class Marshalled {
 		if (len + _pos > _data.size()) {
 			Logger::error("buffer overrun: at % of % read %",
 				      _pos, _data.size(), len);
-			throw 0;
+			assert(0);
 		}
 	}
 
