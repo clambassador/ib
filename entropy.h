@@ -21,7 +21,6 @@ public:
 
 		size_t sz = sizeof(rd());
 		for (int i = 0; i < sizeof(T) / sz; ++i) {
-			Logger::info("out %", i);
 			retval <<= 32;
 			retval += rd();
 		}
