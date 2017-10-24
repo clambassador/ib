@@ -50,6 +50,22 @@ clean:
 		*out = ss.str();
 	}
 
+	static string to_lower(const string& data) {
+		stringstream ss;
+		for (size_t i = 0; i < data.length(); ++i) {
+			ss << tolower(data.at(i));
+		}
+		return ss.str();
+	}
+
+	static string to_upper(const string& data) {
+		stringstream ss;
+		for (size_t i = 0; i < data.length(); ++i) {
+			ss << toupper(data.at(i));
+		}
+		return ss.str();
+	}
+
 	/* Sets <out> to be equal to an escaped version of data
 	   conforming to RFC4180
 	 */
