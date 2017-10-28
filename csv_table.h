@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdint>
 #include <chrono>
+#include <fstream>
 #include <thread>
 #include <vector>
 
@@ -21,9 +22,26 @@ public:
 
 	virtual ~CSVTable() {}
 
+	virtual void stream(const string& csv_file) {
+		_in.open(csv_file);
+		_mode = STREAM;
+
+		int i = 1;
+		try {
+			string line;
+			getline(_in, line);
+			while (true) {
+				string s = Formatting::csv_read(line, i++);
+				_headers.push_back(s);
+			}
+		} catch (string s) {
+		}
+	}
+
 	virtual void load(const string& csv_file) {
 		vector<string> lines;
 		Fileutil::read_file(csv_file, &lines);
+		_mode = LOAD;
 
 		int i = 1;
 		try {
@@ -35,7 +53,7 @@ public:
 		} catch (string s) {
 		}
 		for (int line = 1; line < lines.size(); ++line) {
-				string s = lines[line];
+			string s = lines[line];
 			try {
 				for (int i = 0; i < _columns.size(); ++i) {
 					_columns[i].push_back(
@@ -80,9 +98,30 @@ public:
 	}
 
 	virtual void get_row(size_t row, vector<string> *data) const {
+		assert(_mode == LOAD);
 		for (size_t i = 0; i < _headers.size(); ++i) {
 			data->push_back(_columns.at(i).at(row));
 		}
+	}
+
+	virtual bool get_next_row(vector<string>* data) {
+		assert(_mode == STREAM);
+		assert(data);
+
+		while (_in.good()) {
+			string s;
+			try {
+				getline(_in, s);
+				for (int i = 0; i < _headers.size(); ++i) {
+					data->push_back(
+					    Formatting::csv_read(s, i + 1));
+				}
+				return true;
+			} catch (string ex) {
+				data->clear();
+			}
+		}
+		return false;
 	}
 
 	virtual void project(size_t column, const vector<string>& data) {
@@ -128,6 +167,13 @@ protected:
 	bool _newline;
 	vector<string> _headers;
 	vector<vector<string>> _columns;
+
+	enum {
+		STREAM,
+		LOAD
+	};
+	int _mode;
+	ifstream _in;
 };
 
 }  // namespace ib
