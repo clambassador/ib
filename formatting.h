@@ -53,7 +53,7 @@ clean:
 	static string to_lower(const string& data) {
 		stringstream ss;
 		for (size_t i = 0; i < data.length(); ++i) {
-			ss << tolower(data.at(i));
+			ss << (char) tolower(data.at(i));
 		}
 		return ss.str();
 	}
