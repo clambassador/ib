@@ -1,0 +1,26 @@
+#include <string>
+#include <vector>
+#include <unistd.h>
+#include <gtest/gtest.h>
+
+#include "limiter.h"
+#include "logger.h"
+
+using namespace std;
+using namespace ib;
+
+TEST(Limiter, Limiter_Main){
+	Limiter l5s1(0,0,0,5);
+	Limiter l5s2(10,10,0,5,0,0);
+	Limiter l1s1(0,0,10);
+	Limiter l1s2(100,0,0,1);
+
+	while (!l1s1());
+	Logger::info("about a second");
+	while (!l1s2());
+	Logger::info("about a second");
+	while (!l5s1());
+	Logger::info("about five seconds");
+	while (!l5s2());
+	Logger::info("about five seconds");
+}
