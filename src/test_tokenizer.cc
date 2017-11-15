@@ -1,0 +1,98 @@
+#include <string>
+#include <vector>
+#include <unistd.h>
+#include <gtest/gtest.h>
+
+#include "logger.h"
+#include "tokenizer.h"
+
+using namespace std;
+using namespace ib;
+
+TEST(Tokenizer, Tokenizer_Main) {
+	vector<string> tokens;
+	Tokenizer::split("hello there \"good people\"", " ", &tokens);
+	Logger::info("%", tokens);
+	tokens.clear();
+	Tokenizer::split_mind_quote("hello there \"good people\"", " ", &tokens);
+	Logger::info("%", tokens);
+	tokens.clear();
+
+	int val = 0;
+	int ret = Tokenizer::extract("(%)", "(42)", &val);
+    EXPECT_TRUE(val == 42);
+    EXPECT_TRUE(ret == 1);
+	string str1, str2;
+	ret = Tokenizer::extract("(%)%(%)", "(2)hello(toot)", &val, &str1, &str2);
+    EXPECT_TRUE(ret == 3);
+    EXPECT_TRUE(val == 2);
+    EXPECT_TRUE(str1 == "hello");
+    EXPECT_TRUE(str2 == "toot");
+
+	ret = Tokenizer::extract("%--? %", "preamble--? 18", &str1, &val);
+    EXPECT_TRUE(val == 18);
+    EXPECT_TRUE(str1 == "preamble");
+    EXPECT_TRUE(ret == 2);
+
+	ret = Tokenizer::extract("%=%;%=%", "unread=42;other=12",
+				 nullptr, &val, &str1, nullptr);
+    EXPECT_TRUE(val == 42);
+    EXPECT_TRUE(str1 == "other");
+
+	ret = Tokenizer::extract("test%\4%", "test42\thello",
+				 &val, &str1);
+    EXPECT_TRUE(val == 42);
+    EXPECT_TRUE(str1 == "hello");
+	ret = Tokenizer::extract("test%\4%", "test42 hello",
+				 &val, &str1);
+    EXPECT_TRUE(val == 42);
+    EXPECT_TRUE(str1 == "hello");
+	ret = Tokenizer::extract("test%\4%", "test42\nhello",
+				 &val, &str1);
+    EXPECT_TRUE(val == 42);
+    EXPECT_TRUE(str1 == "hello");
+	ret = Tokenizer::extract("test%\4%", "test42\rhello",
+				 &val, &str1);
+    EXPECT_TRUE(val == 42);
+    EXPECT_TRUE(str1 == "hello");
+
+	vector<string> inner;
+	ret = Tokenizer::extract_all_paired(
+		"{", "}", "{{hello}there}{great}{{}{}{}}", &inner);
+	Logger::info("%", inner);
+
+    EXPECT_TRUE(inner[0] == "{hello}there");
+    EXPECT_TRUE(inner[1] == "great");
+    EXPECT_TRUE(inner[2] == "{}{}{}");
+
+	str1 = "hex%20is%20%41!";
+	Logger::info("% to %", str1, Tokenizer::hex_unescape(str1));
+    EXPECT_TRUE("hex is A!" == Tokenizer::hex_unescape(str1));
+
+
+
+	string s = "b\na\naa\nab\nbb\nba\naabbba\naaaaaaaa no\nbbbba";
+	vector<string> out;
+	Tokenizer::get_lines_matching(&out, s, "a", "b");
+	Logger::info("a and b  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s, "b", "a");
+	Logger::info("b and a  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s, "a", "bb");
+	Logger::info("a and bb  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s, "a");
+	Logger::info("a  % ", out);
+	out.clear();
+	Tokenizer::get_lines_matching(&out, s);
+	Logger::info("   % ", out);
+
+	/*
+TODO: compare format string to data string with a doubling of percents.
+TODO: allow other symbols than percent to allow reading 5 from 5%
+	ret = Tokenizer::extract("% %%", "5 %", &str1);
+    EXPECT_TRUE(str1 == "5");
+    EXPECT_TRUE(ret == 1);
+	*/
+}
