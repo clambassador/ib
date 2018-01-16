@@ -95,6 +95,34 @@ public:
 		return ss.str();
 	}
 
+	static bool fast_split(const string& data,
+			       char delimiter,
+			       int col,
+			       string* out) {
+		int i = 1;
+		size_t start_pos = 0;
+		assert(out);
+		for (size_t pos = 0; pos < data.length(); ++pos) {
+			if (i == col) {
+				start_pos = pos;
+				while (pos < data.length()) {
+					if (data[pos] == delimiter) {
+						*out = data.substr(
+							start_pos,
+							pos - start_pos);
+						return true;
+					}
+					++pos;
+				}
+				*out = data.substr(start_pos);
+				return true;
+			}
+			if (data[pos] == delimiter) ++i;
+		}
+		*out = "";
+		return false;
+	}
+
 	static void split(const string& data, const string& deliminator,
 		          vector<string>* tokens) {
 		size_t pos = 0;

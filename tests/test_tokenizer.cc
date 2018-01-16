@@ -9,6 +9,25 @@ using namespace std;
 using namespace ib;
 
 int main() {
+	{
+	string out;
+	assert(Tokenizer::fast_split("hello,there,good,people",
+			      ',', 1, &out));
+	assert(out == "hello");
+	assert(Tokenizer::fast_split("hello,there,good,people",
+			      ',', 2, &out));
+	assert(out == "there");
+	assert(Tokenizer::fast_split("hello,there,good,people",
+			      ',', 3, &out));
+	assert(out == "good");
+	assert(Tokenizer::fast_split("hello,there,good,people",
+			      ',', 4, &out));
+	assert(out == "people");
+	assert(!Tokenizer::fast_split("hello,there,good,people",
+			      ',', 0, &out));
+	assert(!Tokenizer::fast_split("hello,there,good,people",
+			      ',', 5, &out));
+	}
 	vector<string> tokens;
 	Tokenizer::split("hello there \"good people\"", " ", &tokens);
 	Logger::info("%", tokens);
