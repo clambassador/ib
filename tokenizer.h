@@ -167,8 +167,7 @@ public:
 					}
 					if (!depth) {
 						results->push_back(data.substr(
-							i, j - right.length()
-							     - i + 1));
+							i, j - i));
 						break;
 					}
 				}
