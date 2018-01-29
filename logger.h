@@ -257,7 +257,6 @@ public:
 
 protected:
 	static unique_ptr<mutex> _mutex;
-	static function<void()> _fn;
 	static int _cur_fd;
 	static unordered_map<int, FILE *> _fd_to_file;
 };

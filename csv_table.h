@@ -71,6 +71,7 @@ public:
 	}
 
 	virtual bool save(const string& csv_file) {
+		assert(_headers.size() == _columns.size());
 		start_write();
 		ofstream fout(csv_file);
 		if (_columns.empty()) return false;
@@ -95,6 +96,59 @@ public:
 
 	virtual size_t rows() const {
 		return _columns.at(0).size();
+	}
+
+	virtual size_t cols() const {
+		return _columns.size();
+	}
+
+	virtual void get_primary_keys(set<size_t> *cols) const {
+		for (size_t i = 0; i < _columns.size(); ++i) {
+			set<string> s;
+			get_column(i, &s);
+			if (s.size() == _columns[i].size()) cols->insert(i);
+		}
+	}
+
+	virtual void join(size_t col, const CSVTable& other, size_t other_col) {
+		int start_pos = _columns.size();
+		for (int j = 0; j < other.cols(); ++j) {
+			if (j == other_col) continue;
+			_columns.push_back(vector<string>());
+			_columns.back().resize(rows());
+			_headers.push_back(other.get_header(j));
+		}
+		for (int i = 0; i < other.rows(); ++i) {
+			vector<string> row;
+			other.get_row(i, &row);
+			size_t found = _columns[col].size();
+			for (int j = 0; j < _columns[col].size(); ++j) {
+				if (_columns[col][j] == row[other_col]) {
+					found = j;
+					break;
+				}
+			}
+			if (found == _columns[col].size()) {
+				for (auto &x : _columns) {
+					x.push_back("");
+				}
+				_columns[col].back() = row[other_col];
+			}
+			int pos = start_pos;
+			for (int j = 0; j < row.size(); ++j) {
+				if (j == other_col) continue;
+				Logger::info("pos % j % found %", pos, j,
+					     found);
+				_columns[pos][found] = row[j];
+				++pos;
+			}
+		}
+	}
+
+	virtual void get_column(size_t col, set<string>* data) const {
+		for (size_t i = 0; i < _columns[col].size(); ++i) {
+			data->insert(_columns[col][i]);
+		}
 	}
 
 	virtual void get_row(size_t row, vector<string> *data) const {
@@ -139,7 +193,7 @@ public:
 		_columns.insert(y, data);
 	}
 
-	virtual string get_header(size_t column) {
+	virtual string get_header(size_t column) const {
 		assert(column < _headers.size());
 		return _headers.at(column);
 	}

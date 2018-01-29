@@ -5,6 +5,8 @@ common = Split("""config.cc
 	          logger.cc
 		  sensible_time.cc
 	       """)
+tools = dict()
+tools['csv_join.cc'] = 'csv_join'
 tests = dict()
 tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
@@ -17,6 +19,8 @@ tests['test_exceptional.cc'] = 'test_exceptional'
 tests['test_csv_table.cc'] = 'test_csv_table'
 tests['test_csv_stream.cc'] = 'test_csv_stream'
 tests['test_wait_queue.cc'] = 'test_wait_queue'
+tests['test_csv_join.cc'] = 'test_csv_join'
+tests['test_set.cc'] = 'test_set'
 tests['add_csv.cc'] = 'add_csv'
 tests['csv_to_xml.cc'] = 'csv_to_xml'
 
@@ -28,5 +32,7 @@ env['ENV']['TERM'] = 'xterm'
 Decider('MD5')
 for i in tests:
 	env.Program(source = ['tests/' + i] + common, target = tests[i])
+for i in tools:
+	env.Program(source = ['tools/' + i] + common, target = tools[i])
 
 env.Library('ib', common)
