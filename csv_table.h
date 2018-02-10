@@ -38,6 +38,19 @@ public:
 		}
 	}
 
+	static int load_map(const string& csv_file, map<string, string>* out) {
+		CSVTable table;
+		table.stream(csv_file);
+		assert(table.cols() == 2);
+		vector<string> data;
+		while (table.get_next_row(&data)) {
+			assert(data.size() == 2);
+			(*out)[data[0]] = data[1];
+			data.clear();
+		}
+		return true;
+	}
+
 	virtual void load(const string& csv_file) {
 		vector<string> lines;
 		Fileutil::read_file(csv_file, &lines);
@@ -99,7 +112,7 @@ public:
 	}
 
 	virtual size_t cols() const {
-		return _columns.size();
+		return _headers.size();
 	}
 
 	virtual void get_primary_keys(set<size_t> *cols) const {

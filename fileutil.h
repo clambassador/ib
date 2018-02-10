@@ -104,6 +104,7 @@ public:
 		}
 		return curmax;
 	}
+
 };
 
 }   // namespace ib
