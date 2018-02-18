@@ -374,6 +374,16 @@ public:
 	}
 
 	template<typename... Args>
+	static int get_split_matching(vector<string>* out,
+				      const string& delimiter,
+				      const string& data,
+				      Args... args) {
+		vector<string> tokens;
+		split(data, delimiter, &tokens);
+		return get_lines_matching_impl(out, tokens, args...);
+	}
+
+	template<typename... Args>
 	static int get_lines_matching(vector<string>* out, const string& data,
 				      Args... args) {
 		vector<string> tokens;
