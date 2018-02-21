@@ -39,14 +39,18 @@ public:
 	}
 
 	static string hex_unescape(const string& data) {
+		return hex_unescape(data, "%");
+	}
+
+	static string hex_unescape(const string& data, const string& delimiter) {
 		vector<string> pieces;
-		split(data, "%", &pieces);
+		split(data, delimiter, &pieces);
 		if (pieces.size() < 2) return data;
 		stringstream ss;
 		ss << pieces[0];
 		for (int i = 1; i < pieces.size(); ++i) {
 			if (pieces[i].length() < 2)
-				ss << "%" << pieces[i];
+				ss << delimiter << pieces[i];
 			else {
 				stringstream hexparse;
 				int val;
