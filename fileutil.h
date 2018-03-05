@@ -56,6 +56,12 @@ public:
 		return filename;
 	}
 
+	static bool exists(const string& file_name) {
+		if (file_name.empty()) return false;
+		ifstream fin(file_name);
+		return fin.good();
+	}
+
 	static int read_file(const string& file_name,
 			     vector<string>* output) {
 		if (file_name.empty()) return -1;
