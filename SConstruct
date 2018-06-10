@@ -6,7 +6,11 @@ common = Split("""config.cc
 		  sensible_time.cc
 	       """)
 tools = dict()
+tools['xor.cc'] = 'xor'
+tools['slidemask.cc'] = 'slidemask'
 tools['csv_join.cc'] = 'csv_join'
+tools['hex_unescape.cc'] = 'hex_unescape'
+tools['extract_all.cc'] = 'extract_all'
 tests = dict()
 tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
