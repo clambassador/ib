@@ -9,6 +9,7 @@ using namespace std;
 using namespace ib;
 
 int main() {
+	Logger::info("3b0a3e4f % ", Logger::dehexify("3b0a3e4f"));
 	{
 	string out;
 	assert(Tokenizer::fast_split("hello,there,good,people",

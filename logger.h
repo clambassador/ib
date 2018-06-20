@@ -153,6 +153,15 @@ public:
 		}
 	}
 
+	static bool is_binary(const string& data) {
+		for (int i = 0; i < data.length(); ++i) {
+			if ((unsigned char) data[i] > 127) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	template<typename T>
 	static string stringify(const list<T>& val) {
 		stringstream ss;
@@ -228,6 +237,20 @@ public:
 //			}
 //		}
 		return val;
+	}
+
+	static string dehexify(const string& data) {
+		assert(!(data.length() % 2));
+
+		stringstream ssout;
+		for (size_t i = 0; i < data.length(); i += 2) {
+			stringstream ss;
+			int value;
+			ss << hex << data.substr(i, 2);
+			ss >> value;
+			ssout << (char) value;
+		}
+		return ssout.str();
 	}
 
 	static string hexify(uint8_t* data, uint32_t len) {
