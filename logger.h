@@ -253,6 +253,10 @@ public:
 		return ssout.str();
 	}
 
+	static string hexify(const string& data) {
+		return hexify((uint8_t*) data.c_str(), data.length());
+	}
+
 	static string hexify(uint8_t* data, uint32_t len) {
                 char hv[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
                 stringstream ss;
@@ -261,6 +265,10 @@ public:
                 }
                 return ss.str();
         }
+
+	static string lower_hexify(const string& data) {
+		return lower_hexify((uint8_t*) data.c_str(), data.length());
+	}
 
 	static string lower_hexify(uint8_t* data, uint32_t len) {
                 char hv[16]={'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};

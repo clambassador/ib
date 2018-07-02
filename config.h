@@ -29,6 +29,9 @@ public:
 	}
 
 	int load(const string& config_filename) {
+		assert(!config_filename.empty());
+		if (config_filename[0] == '/') return load("/.", config_filename);
+
 		return load(".", config_filename);
 	}
 
