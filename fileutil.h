@@ -33,7 +33,10 @@ public:
 			     string* output) {
 		if (file_name.empty()) return -1;
 		ifstream fin(file_name);
-		assert(fin.good());
+		if (!fin.good()) {
+			*output = "";
+			return -1;
+		}
 		stringstream buffer;
 		buffer << fin.rdbuf();
 		assert(fin.good());
