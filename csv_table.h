@@ -22,6 +22,22 @@ public:
 
 	virtual ~CSVTable() {}
 
+	template<typename... Args>
+	static string cut(const vector<string>& row, Args... args) {
+		return cut_impl(row, args...).substr(1);
+	}
+
+protected:
+	template<typename... Args>
+	static string cut_impl(const vector<string>& row, int field, Args... args) {
+		return "," + row[field] + cut_impl(row, args...);
+	}
+
+	static string cut_impl(const vector<string>& row) {
+		return "";
+	}
+
+public:
 	virtual void stream(const string& csv_file) {
 		_in.open(csv_file);
 		_mode = STREAM;
