@@ -10,6 +10,7 @@ tools['xor.cc'] = 'xor'
 tools['slidemask.cc'] = 'slidemask'
 tools['csv_join.cc'] = 'csv_join'
 tools['hex_unescape.cc'] = 'hex_unescape'
+tools['json_to_csv.cc'] = 'json_to_csv'
 tools['extract_all.cc'] = 'extract_all'
 tests = dict()
 tests['test_limiter.cc'] = 'test_limiter'

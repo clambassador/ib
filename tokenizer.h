@@ -30,7 +30,7 @@ public:
 			if (data[i] == '\"') {
 				(*annotated)[i] += '\"';
 				++i;
-				in_quote = ~in_quote;
+				in_quote = !in_quote;
 				continue;
 			}
 			(*annotated)[i] += chr[in_quote];
