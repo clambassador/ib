@@ -99,6 +99,21 @@ public:
 		return ss.str();
 	}
 
+	static string trim(const string& str) {
+                int s = 0;
+                int e = str.length() - 1;
+                while (whitespace(str[s++]));
+		while (whitespace(str[e--]));
+                --s;
+                ++e;
+                ++e;
+                return str.substr(s, e - s);
+        }
+
+        static bool whitespace(const char& c) {
+                return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
+        }
+
 	static bool fast_split(const string& data,
 			       char delimiter,
 			       int col,
@@ -125,6 +140,19 @@ public:
 		}
 		*out = "";
 		return false;
+	}
+
+	static void numset(const string& nums, set<size_t>* out) {
+		assert(out);
+		vector<string> cols;
+		split(nums, ",", &cols);
+		for (auto &x : cols) {
+			size_t val;
+
+			cout << x << endl;
+			extract_one(x, &val);
+			out->insert(val);
+		}
 	}
 
 	static void split(const string& data, const string& deliminator,

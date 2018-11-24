@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "ib/logger.h"
+#include "ib/tokenizer.h"
 
 using namespace std;
 
@@ -76,7 +77,7 @@ public:
 				string sval;
 				fin >> name;
 				getline(fin, sval);
-				sval = trim(sval);
+				sval = Tokenizer::trim(sval);
 				_name_to_string[prefices.back() + name] = sval;
 			} else {
 				fin >> val;
@@ -169,20 +170,7 @@ public:
 	}
 
 protected:
-        string trim(const string& str) {
-                int s = 0;
-                int e = str.length() - 1;
-                while (whitespace(str[s++]));
-                while (whitespace(str[e--]));
-                --s;
-                ++e;
-                ++e;
-                return str.substr(s, e - s);
-        }
 
-        bool whitespace(const char& c) {
-                return (c == ' ' || c == '\r' || c == '\n');
-        }
 
 	Config(const Config&);
 
