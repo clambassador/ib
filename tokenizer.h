@@ -102,8 +102,8 @@ public:
 	static string trim(const string& str) {
                 int s = 0;
                 int e = str.length() - 1;
-                while (whitespace(str[s++]));
-		while (whitespace(str[e--]));
+                while (whitespace(str[s])) ++s;
+		while (whitespace(str[e])) ++e;
                 --s;
                 ++e;
                 ++e;

@@ -86,11 +86,11 @@ public:
 		DIR* dir = opendir(directory.c_str());
 		if (!dir) return -1;
 
-		struct dirent entry;
 		struct dirent* result;
-		while (!readdir_r(dir, &entry, &result)) {
+		while (true) {
+			result = readdir(dir);
 			if (!result) break;
-			files->push_back(entry.d_name);
+			files->push_back(result->d_name);
 		}
 		return 0;
 	}
