@@ -149,7 +149,6 @@ public:
 		for (auto &x : cols) {
 			size_t val;
 
-			cout << x << endl;
 			extract_one(x, &val);
 			out->insert(val);
 		}
