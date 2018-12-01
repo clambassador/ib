@@ -66,6 +66,20 @@ public:
 	}
 
 	static int read_file(const string& file_name,
+			     set<string>* output) {
+		if (file_name.empty()) return -1;
+		ifstream fin(file_name);
+		assert(fin.good());
+		while (fin.good()) {
+			string s;
+			getline(fin, s);
+			if (s.empty()) continue;
+			output->insert(s);
+		}
+		return 0;
+	}
+
+	static int read_file(const string& file_name,
 			     vector<string>* output) {
 		if (file_name.empty()) return -1;
 		ifstream fin(file_name);
