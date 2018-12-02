@@ -112,6 +112,43 @@ public:
                 return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
         }
 
+	static bool pop_split(const string& data,
+			       char delimiter,
+			       int col,
+			       string* in,
+			       string* out) {
+		int i = 1;
+		size_t start_pos = 0;
+		assert(out);
+		assert(in);
+		*in = "";
+		for (size_t pos = 0; pos < data.length(); ++pos) {
+			if (i == col) {
+				start_pos = pos;
+				if (start_pos) *in = data.substr(0, start_pos - 1);
+				Logger::info("in %", *in);
+				while (pos < data.length()) {
+					if (data[pos] == delimiter) {
+						*out = data.substr(
+							start_pos,
+							pos - start_pos);
+						if (!in->empty()) *in +=
+							delimiter;
+
+						*in += data.substr(pos + 1);
+				Logger::info("in2 %", *in);
+						return true;
+					}
+					++pos;
+				}
+				*out = data.substr(start_pos);
+				return true;
+			}
+			if (data[pos] == delimiter) ++i;
+		}
+		*out = "";
+		return false;
+	}
 	static bool fast_split(const string& data,
 			       char delimiter,
 			       int col,

@@ -107,6 +107,33 @@ int main() {
 	Tokenizer::get_lines_matching(&out, s);
 	Logger::info("   % ", out);
 
+	{
+	string in, out;
+	Tokenizer::pop_split("one,two,three", ',', 2, &in, &out);
+	Logger::info("% %", in, out);
+	assert(in == "one,three");
+	assert(out == "two");
+	in = ""; out = "";
+	Tokenizer::pop_split("one,two,three", ',', 1, &in, &out);
+	Logger::info("% %", in, out);
+	assert(in == "two,three");
+	assert(out == "one");
+	in = ""; out = "";
+	Tokenizer::pop_split("one,two,three", ',', 3, &in, &out);
+	Logger::info("% %", in, out);
+	assert(in == "one,two");
+	assert(out == "three");
+	in = ""; out = "";
+	Tokenizer::pop_split("one,two", ',', 2, &in, &out);
+	Logger::info("% %", in, out);
+	assert(in == "one");
+	assert(out == "two");
+	in = ""; out = "";
+	Tokenizer::pop_split("one", ',', 1, &in, &out);
+	Logger::info("% %", in, out);
+	assert(in == "");
+	assert(out == "one");
+	}
 	/*
 TODO: compare format string to data string with a doubling of percents.
 TODO: allow other symbols than percent to allow reading 5 from 5%
