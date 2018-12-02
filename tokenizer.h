@@ -126,7 +126,6 @@ public:
 			if (i == col) {
 				start_pos = pos;
 				if (start_pos) *in = data.substr(0, start_pos - 1);
-				Logger::info("in %", *in);
 				while (pos < data.length()) {
 					if (data[pos] == delimiter) {
 						*out = data.substr(
@@ -136,7 +135,6 @@ public:
 							delimiter;
 
 						*in += data.substr(pos + 1);
-				Logger::info("in2 %", *in);
 						return true;
 					}
 					++pos;
