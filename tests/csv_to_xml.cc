@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 		string name;
 		Tokenizer::extract("%.csv", x, &name);
 		Logger::info("found a csv: %", x);
-		CSVTable table;
+		CSVTable<true> table;
 		table.load(x);
 
 		vector<string> headers = table.headers();

@@ -17,7 +17,7 @@ int main() {
 	fout << "2,3,4,5,6" << endl;
 	fout.close();
 
-	CSVTable table;
+	CSVTable<true> table;
 	table.stream("/tmp/test_csv_table");
 
 	vector<string> data;

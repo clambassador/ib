@@ -22,7 +22,7 @@ int main() {
 	}
 
 	map<string, string> table;
-	CSVTable::load_map("/tmp/test_csv_table", &table);
+	CSVTable<true>::load_map("/tmp/test_csv_table", &table);
 	assert(table.size() == 4);
 	assert(table["key1"] == "val1");
 	assert(table["key2"] == "val2");
@@ -36,6 +36,6 @@ int main() {
 	}
 
 	table.clear();
-	CSVTable::load_map("/tmp/test_csv_table", &table);
+	CSVTable<true>::load_map("/tmp/test_csv_table", &table);
 	assert(table.size() == 0);
 }

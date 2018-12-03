@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 	string file = argv[1];
 	string name = argv[2];
 	string val = argv[3];
-	CSVTable table;
+	CSVTable<true> table;
 	table.load(argv[1]);
 
 	vector<string> vs = table.project(0);

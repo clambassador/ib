@@ -16,6 +16,7 @@ using namespace std;
 
 namespace ib {
 
+template<bool has_header = true>
 class CSVTable {
 public:
 	CSVTable() {}
@@ -38,19 +39,43 @@ protected:
 	}
 
 public:
-	virtual void stream(const string& csv_file) {
-		_in.open(csv_file);
+	virtual void stream() {
 		_mode = STREAM;
+		_in = &cin;
+		if (has_header) {
+			process_header();
+		}
+	}
 
+	virtual void process_header() {
 		int i = 1;
 		try {
 			string line;
-			getline(_in, line);
+			getline(*_in, line);
 			while (true) {
 				string s = Formatting::csv_read(line, i++);
 				_headers.push_back(s);
 			}
 		} catch (string s) {
+		}
+	}
+
+	virtual void stream(const string& csv_file) {
+		_in = new ifstream(csv_file);
+		_del.reset(_in);
+		_mode = STREAM;
+
+		if (has_header) {
+			int i = 1;
+			try {
+				string line;
+				getline(*_in, line);
+				while (true) {
+					string s = Formatting::csv_read(line, i++);
+					_headers.push_back(s);
+				}
+			} catch (string s) {
+			}
 		}
 	}
 
@@ -191,10 +216,26 @@ public:
 		assert(_mode == STREAM);
 		assert(data);
 
-		while (_in.good()) {
-			string s;
+		while (_in->good()) {
 			try {
-				getline(_in, s);
+				if (_headers.size() == 0) {
+					assert(has_header == false);
+					int i = 1;
+					try {
+						string line;
+						getline(*_in, line);
+						while (true) {
+							data->push_back(
+							    Formatting::csv_read(line,
+										 i++));
+						}
+					} catch (string s) {
+					}
+					return true;
+				}
+				assert(has_header);
+				string s;
+				getline(*_in, s);
 				for (int i = 0; i < _headers.size(); ++i) {
 					data->push_back(
 					    Formatting::csv_read(s, i + 1));
@@ -256,7 +297,8 @@ protected:
 		LOAD
 	};
 	int _mode;
-	ifstream _in;
+	istream* _in;
+	unique_ptr<istream> _del;
 };
 
 }  // namespace ib

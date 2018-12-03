@@ -17,7 +17,7 @@ int main() {
 	fout << "2,3,4,5,6" << endl;
 	fout.close();
 
-	CSVTable table;
+	CSVTable<true> table;
 	table.load("/tmp/test_csv_table");
 
 	vector<string> vs = table.project(2);
@@ -26,4 +26,24 @@ int main() {
 	table.project(2, vs);
 
 	table.save("/tmp/test_csv_table_out");
+
+	{
+	ofstream fout("/tmp/test_csv_table");
+	fout << "1,2,3,4,5" << endl;
+	fout << "2,2,2,4,5" << endl;
+	fout << "3,2,1,4,5" << endl;
+	fout << "4,3,4,5,6" << endl;
+	fout.close();
+
+	CSVTable<false> table;
+	table.stream("/tmp/test_csv_table");
+	for (size_t i = 0; i < 4; ++i) {
+		vector<string> data;
+		table.get_next_row(&data);
+		Logger::info("% %", i+1, data);
+		assert(data[0] == Logger::stringify("%", i+1));
+
+	}
+	}
+
 }

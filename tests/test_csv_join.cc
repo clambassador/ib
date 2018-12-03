@@ -32,11 +32,11 @@ int main() {
 	fout << "aaaaa,5,ccccc" << endl;
 	fout.close();
 
-	CSVTable t1;
+	CSVTable<true> t1;
 	t1.load("/tmp/test_csv_table1");
-	CSVTable t2;
+	CSVTable<true> t2;
 	t2.load("/tmp/test_csv_table2");
-	CSVTable t3;
+	CSVTable<true> t3;
 	t3.load("/tmp/test_csv_table3");
 
 	t1.join(0, t2, 0);

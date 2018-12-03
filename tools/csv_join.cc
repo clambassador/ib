@@ -18,10 +18,10 @@ int do_join(int argc, char** argv, float percent) {
 		Logger::error("usage: % file1 file2 ...", argv[0]);
 		return -1;
 	}
-	vector<unique_ptr<CSVTable>> ts;
+	vector<unique_ptr<CSVTable<true>>> ts;
 	for (int i = 1; i < argc; ++i) {
 		ts.resize(i);
-		ts.back().reset(new CSVTable());
+		ts.back().reset(new CSVTable<true>());
 		ts.back()->load(argv[i]);
 	}
 

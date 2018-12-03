@@ -62,6 +62,39 @@ public:
 		return ss.str();
 	}
 
+	static string join(const vector<string>& data, const string& delimiter,
+			   const set<size_t> pos) {
+		if (pos.size() == 0) return "";
+		stringstream ss;
+		for (auto &x : pos) {
+			ss << data[x] << delimiter;
+		}
+		return ss.str().substr(0, ss.str().length() -
+				       delimiter.length());
+	}
+
+	static void join(const vector<string>& data, const string& delimiter,
+			   const set<size_t> pos, string* in, string* out) {
+		if (pos.size() == 0) *in = "";
+		if (pos.size() == data.size()) *out = "";
+		stringstream ss_in;
+		stringstream ss_out;
+
+		for (size_t i = 0; i < data.size(); ++i) {
+			if (pos.count(i + 1)) {
+				ss_in << data[i] << delimiter;
+			} else {
+				ss_out << data[i] << delimiter;
+			}
+		}
+		if (pos.size() > 0)
+			*in = ss_in.str().substr(
+				0, ss_in.str().length() - delimiter.length());
+		if (pos.size() < data.size())
+			*out = ss_out.str().substr(
+				0, ss_out.str().length() - delimiter.length());
+	}
+
 	static string replace(const string& data, const string& find,
 			      const string& replacement) {
 		vector<string> pieces;

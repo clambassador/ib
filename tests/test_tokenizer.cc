@@ -141,4 +141,37 @@ TODO: allow other symbols than percent to allow reading 5 from 5%
 	assert(str1 == "5");
 	assert(ret == 1);
 	*/
+
+	{
+		string in, out;
+		vector<string> data;
+		data.push_back("one");
+		data.push_back("two");
+		data.push_back("three");
+		data.push_back("four");
+		data.push_back("five");
+		set<size_t> cols;
+		cols.insert(1);
+		cols.insert(4);
+		Tokenizer::join(data, ",", cols, &in, &out);
+		Logger::info("% %", in, out);
+		assert(in == "one,four");
+		assert(out == "two,three,five");
+		cols.clear();
+		Tokenizer::join(data, ",", cols, &in, &out);
+		Logger::info("% %", in, out);
+		assert(in == "");
+		assert(out == "one,two,three,four,five");
+		cols.insert(5);
+		Tokenizer::join(data, ",", cols, &in, &out);
+		Logger::info("% %", in, out);
+		assert(in == "five");
+		assert(out == "one,two,three,four");
+
+		cols.insert(4);
+		Tokenizer::join(data, ",", cols, &in, &out);
+		Logger::info("% %", in, out);
+		assert(in == "four,five");
+		assert(out == "one,two,three");
+	}
 }
