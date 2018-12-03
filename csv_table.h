@@ -212,9 +212,21 @@ public:
 		}
 	}
 
+	virtual bool set_next_row(const vector<string>& data) {
+		assert(_mode == STREAM);
+		_stash.push_back(data);
+		return true;
+	}
+
 	virtual bool get_next_row(vector<string>* data) {
 		assert(_mode == STREAM);
 		assert(data);
+
+		if (!_stash.empty()) {
+			*data = _stash.back();
+			_stash.pop_back();
+			return true;
+		}
 
 		while (_in->good()) {
 			try {
@@ -299,6 +311,7 @@ protected:
 	int _mode;
 	istream* _in;
 	unique_ptr<istream> _del;
+	vector<vector<string>> _stash;
 };
 
 }  // namespace ib
