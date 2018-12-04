@@ -118,7 +118,7 @@ protected:
 	void abort_run(int when) {
 		int now = sensible_time::runtime();
 		while (!_done && (now + when > sensible_time::runtime())) {
-			sleep(1);
+			usleep(1000);
 		}
 		if (_done) return;
 
