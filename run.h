@@ -84,7 +84,7 @@ protected:
 			}
 			_argvs[pos][0] = s.substr(0, s.length() - 1);
 		}
-		Logger::info("(ib::run) calling: %", _argvs[pos]);
+		// Logger::info("(ib::run) calling: %", _argvs[pos]);
 
 		pid_t pid = fork();
 		if (pid == -1) {
@@ -97,7 +97,6 @@ protected:
 			// TODO: decide what to do with STDERR_FILENO
 			_pipes[pos + 1]->set_write();
 			dup2(_pipes[pos + 1]->write_end, STDOUT_FILENO);
-			Logger::error("about to run %", argv[0]);
 			execv(argv[0], (char * const *) argv);
 			if (errno == 2) {
 				Logger::error("execv failed. did you give a full path to executable?");
@@ -156,12 +155,9 @@ public:
 		size_t pid_pos = 0;
 		char buf[SIZE];
 		while (true) {
-			Logger::info("about to read, last %", r);
 			r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) {
 				waitpid(_pids[pid_pos++], &_status, 0);
-				Logger::info("(run) pid % finished %",
-					     _pids[pid_pos], _status);
 				if (pid_pos == _pids.size()) break;
 			}
 			if (r < 0) {
@@ -191,12 +187,9 @@ public:
 		thread kill_thread(bind(&Run::abort_run, this, runtime));
 		int r = 0;
 		while (true) {
-			Logger::info("about to read last %", r);
 			r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) {
 				waitpid(_pids[pid_pos++], &_status, 0);
-				Logger::info("(run) pid % finished %",
-					     _pids[pid_pos], _status);
 				if (pid_pos == _pids.size()) break;
 			}
 			if (r < 0) {
