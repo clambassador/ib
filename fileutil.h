@@ -61,6 +61,9 @@ public:
 
 	static bool exists(const string& file_name) {
 		if (file_name.empty()) return false;
+		if (safety() && !safe(file_name)) {
+			throw "nice try";
+		}
 		ifstream fin(file_name);
 		return fin.good();
 	}
@@ -68,6 +71,9 @@ public:
 	static int read_file(const string& file_name,
 			     set<string>* output) {
 		if (file_name.empty()) return -1;
+		if (safety() && !safe(file_name)) {
+			throw "nice try";
+		}
 		ifstream fin(file_name);
 		assert(fin.good());
 		while (fin.good()) {
@@ -82,6 +88,9 @@ public:
 	static int read_file(const string& file_name,
 			     vector<string>* output) {
 		if (file_name.empty()) return -1;
+		if (safety() && !safe(file_name)) {
+			throw "nice try";
+		}
 		ifstream fin(file_name);
 		assert(fin.good());
 		while (fin.good()) {
@@ -97,6 +106,9 @@ public:
 
 	static int list_directory(const string& directory,
 				  vector<string>* files) {
+		if (safety() && !safe(directory)) {
+			throw "nice try";
+		}
 		DIR* dir = opendir(directory.c_str());
 		if (!dir) return -1;
 
@@ -127,6 +139,38 @@ public:
 		}
 		return curmax;
 	}
+
+	static string file_dir(const string& file) {
+		for (size_t i = file.size() - 1; i != 0; --i) {
+			if (file[i] == '/') return file.substr(0, i);
+		}
+		return file;
+	}
+
+	static string realpath(const string& path) {
+		unique_ptr<char> result;
+		result.reset(::realpath(path.c_str(), nullptr));
+		if (result.get()) return string(result.get());
+		return "";
+	}
+
+	static bool safety() {
+		return _safe;
+	}
+
+	static void unsafe() {
+		_safe = false;
+	}
+
+	static bool safe(const string& filename) {
+		string file = realpath(file_dir(filename));
+		string pwd = realpath(".");
+		if (file.substr(0, pwd.length()) != pwd) return false;
+		return true;
+	}
+
+	static bool _safe;
+
 
 };
 

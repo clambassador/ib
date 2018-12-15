@@ -4,6 +4,7 @@ for i in range(0, 10):
 common = Split("""config.cc
 	          logger.cc
 		  sensible_time.cc
+		  fileutil.cc
 	       """)
 tools = dict()
 tools['xor.cc'] = 'xor'
@@ -32,7 +33,7 @@ tests['csv_to_xml.cc'] = 'csv_to_xml'
 
 libs = Split("""
 	     """)
-env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11", LIBS=libs, CPPPATH="..")
+env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -O2 --std=c++11", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'
 
 Decider('MD5')
