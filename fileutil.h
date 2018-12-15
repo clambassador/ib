@@ -162,6 +162,10 @@ public:
 		_safe = false;
 	}
 
+	static bool safe() {
+		_safe = true;
+	}
+
 	static bool safe(const string& filename) {
 		string file = realpath(file_dir(filename));
 		string pwd = realpath(".");
