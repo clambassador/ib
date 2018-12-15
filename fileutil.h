@@ -162,7 +162,7 @@ public:
 		_safe = false;
 	}
 
-	static bool safe() {
+	static void safe() {
 		_safe = true;
 	}
 
