@@ -15,6 +15,23 @@ namespace ib {
 
 class Tokenizer {
 public:
+	static string longest_prefix(const vector<string>& vals) {
+		if (vals.empty()) return "";
+		if (vals.size() == 1) return vals[0];
+		string ref = vals[0];
+		string retval = "";
+		for (size_t i = 0; i < ref.length(); ++i) {
+			for (size_t j = 1; j < vals.size(); ++j) {
+				if (i == vals.at(j).length()) return retval;
+				assert(i < vals.at(j).length());
+				if (vals.at(j).at(i) != ref.at(i))
+					return retval;
+			}
+			retval += ref[i];
+		}
+		return retval;
+	}
+
 	static void annotate_quote(const string& data, string* annotated) {
 		bool in_quote = false;
 		char chr[2] = {'_', '\''};

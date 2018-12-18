@@ -150,6 +150,8 @@ TODO: allow other symbols than percent to allow reading 5 from 5%
 		data.push_back("three");
 		data.push_back("four");
 		data.push_back("five");
+		Logger::info("longest prefix % %", data,
+			     Tokenizer::longest_prefix(data));
 		set<size_t> cols;
 		cols.insert(1);
 		cols.insert(4);
@@ -174,4 +176,22 @@ TODO: allow other symbols than percent to allow reading 5 from 5%
 		assert(in == "four,five");
 		assert(out == "one,two,three");
 	}
+	{
+		vector<string> data;
+		data.push_back("prefix");
+		data.push_back("postfix");
+		data.push_back("preceed");
+		Logger::info("longest prefix % %", data,
+			     Tokenizer::longest_prefix(data));
+	}
+
+	{
+		vector<string> data;
+		data.push_back("prefix");
+		data.push_back("preficex");
+		data.push_back("preceed");
+		Logger::info("longest prefix % %", data,
+			     Tokenizer::longest_prefix(data));
+	}
+
 }
