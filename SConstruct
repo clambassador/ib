@@ -27,13 +27,14 @@ tests['test_csv_table.cc'] = 'test_csv_table'
 tests['test_csv_stream.cc'] = 'test_csv_stream'
 tests['test_wait_queue.cc'] = 'test_wait_queue'
 tests['test_csv_join.cc'] = 'test_csv_join'
+tests['test_containers.cc'] = 'test_containers'
 tests['test_set.cc'] = 'test_set'
 tests['add_csv.cc'] = 'add_csv'
 tests['csv_to_xml.cc'] = 'csv_to_xml'
 
 libs = Split("""
 	     """)
-env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -O2 --std=c++11", LIBS=libs, CPPPATH="..")
+env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'
 
 Decider('MD5')
