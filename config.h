@@ -169,6 +169,17 @@ public:
 		return _name_to_list[name];
 	}
 
+	void get_all(const string& prefix, map<string, string>* name) {
+		for (auto &x : _name_to_string) {
+			if (x.first.length() <= prefix.length()) continue;
+			if (x.first.at(prefix.length()) != '_') continue;
+			if (x.first.substr(0, prefix.length()) == prefix) {
+				(*name)[x.first.substr(prefix.length() + 1)] =
+				    x.second;
+			}
+		}
+	}
+
 protected:
 
 

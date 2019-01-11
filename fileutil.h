@@ -51,7 +51,7 @@ public:
 		assert(!filename.empty());
 		if (filename.length() > extension.length() &&
 		    filename.substr(filename.length() - extension.length() - 1)
-		    == "." + extension) {
+		    == extension) {
 			return filename.substr(0, filename.length() -
 					       extension.length() - 1);
 		}
@@ -100,6 +100,28 @@ public:
 		}
 		if (output->size() && output->back().empty()) {
 			output->pop_back();
+		}
+		return 0;
+	}
+
+	static int list_directory(const string& directory,
+				  const string& extension,
+				  vector<string>* files) {
+		if (safety() && !safe(directory)) {
+			throw "nice try";
+		}
+		DIR* dir = opendir(directory.c_str());
+		if (!dir) return -1;
+
+		struct dirent* result;
+		while (true) {
+			result = readdir(dir);
+			if (!result) break;
+			string name = result->d_name;
+			if (name.length() < extension.length()) continue;
+			if (name.substr(name.length() - extension.length())
+			    == extension)
+				files->push_back(name);
 		}
 		return 0;
 	}
