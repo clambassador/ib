@@ -79,6 +79,17 @@ public:
 		return ss.str();
 	}
 
+	static string join(const vector<string>& data,
+			   const string& delimiter) {
+		if (data.empty()) return "";
+		stringstream ss;
+		for (auto &x : data) {
+			ss << x << delimiter;
+		}
+		return ss.str().substr(0, ss.str().length() -
+				       delimiter.length());
+	}
+
 	static string join(const vector<string>& data, const string& delimiter,
 			   const set<size_t> pos) {
 		if (pos.size() == 0) return "";
@@ -434,6 +445,11 @@ public:
 				   T car, ARGS... cdr) {
 		string token = tokens->front();
 		tokens->pop_front();
+		if (!tokens->size()) {
+			Logger::debug("about to crash: % % % % %",
+				      pos_format, format, pos_data,
+				      data, tokens, cnt);
+		}
 		assert(tokens->size());
 		assert(check_token_match(
 			data.substr(pos_data, token.length()),

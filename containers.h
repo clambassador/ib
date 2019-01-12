@@ -15,10 +15,22 @@ namespace ib {
 class Containers {
 public:
 	template <typename T>
+	static vector<T> unique(const vector<T>& input) {
+		vector<T> retval;
+		set<T> tmp;
+		for (const auto &x : input) {
+			tmp.insert(x);
+		}
+		for (const auto &x : tmp) {
+			retval.push_back(x);
+		}
+		return retval;
+	}
+
+	template <typename T>
 	static int reorder_vector(const vector<T>& order,
 				  const vector<T>& input,
 				  vector<T>* output) {
-		assert(output->empty());
 		assert(order.size() >= input.size());
 		map<T, size_t> reverse;
 		map<size_t, T> result;
@@ -27,6 +39,7 @@ public:
 			assert(reverse.count(x));
 			result[reverse[x]] = x;
 		}
+		output->clear();
 		for (const auto& x: result) {
 			output->push_back(x.second);
 		}
