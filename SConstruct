@@ -29,6 +29,7 @@ tests['test_wait_queue.cc'] = 'test_wait_queue'
 tests['test_csv_join.cc'] = 'test_csv_join'
 tests['test_containers.cc'] = 'test_containers'
 tests['test_set.cc'] = 'test_set'
+tests['test_base64.cc'] = 'test_base64'
 tests['add_csv.cc'] = 'add_csv'
 tests['csv_to_xml.cc'] = 'csv_to_xml'
 
