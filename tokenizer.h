@@ -236,6 +236,14 @@ public:
 		return false;
 	}
 
+	static void numset(const string& nums, set<size_t>* out, int shift) {
+		set<size_t> tmp;
+		numset(nums, &tmp);
+		for (auto &x : tmp) {
+			out->insert(x + shift);
+		}
+	}
+
 	static void numset(const string& nums, set<size_t>* out) {
 		assert(out);
 		vector<string> cols;
