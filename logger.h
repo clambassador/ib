@@ -36,6 +36,10 @@ public:
 	static void error() {}
 	template<typename... Args>
 	static void error(const char* format, const Args&... args) {
+		if (_error_to_file) {
+			flog(format, args...);
+			return;
+		}
 		unique_lock<mutex> lock(*_mutex.get());
 		cerr << "\033[1;31m" << runtime() << " ERROR: \033[0m"
 		     << stringify(format, args...) << endl;
@@ -69,6 +73,21 @@ public:
 		}
 	}
 
+	static void error_to_file() {
+		_error_to_file = true;
+	}
+
+	template<typename... Args>
+	static void flog(const char* format, const Args&... args) {
+		assert(_fd_to_file.size() < 2);
+		if (_fd_to_file.size() == 0) {
+			open_file("flog.out");
+		}
+		for (auto &x : _fd_to_file) {
+			file(x.first, format, args...);
+		}
+	}
+
 	template<typename... Args>
 	static void file(int fd, const char* format, const Args&... args) {
 		if (!fd) {
@@ -80,6 +99,7 @@ public:
 			assert(_fd_to_file.count(fd));
 			f = _fd_to_file[fd];
 			fprintf(f, "%s\n", stringify(format, args...).c_str());
+			fflush(f);
 		}
 	}
 
@@ -290,6 +310,7 @@ protected:
 	static unique_ptr<mutex> _mutex;
 	static int _cur_fd;
 	static unordered_map<int, FILE *> _fd_to_file;
+	static bool _error_to_file;
 };
 
 }  // namespace ib
