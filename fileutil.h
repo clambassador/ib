@@ -39,6 +39,7 @@ public:
 		}
 		stringstream buffer;
 		buffer << fin.rdbuf();
+		if (!fin.good()) Logger::error("failed to read: %", file_name);
 		assert(fin.good());
 		*output = buffer.str();
 		return 0;
@@ -92,6 +93,7 @@ public:
 			throw "nice try";
 		}
 		ifstream fin(file_name);
+		if (!fin.good()) Logger::error("error reading %", file_name);
 		assert(fin.good());
 		while (fin.good()) {
 			string s;
