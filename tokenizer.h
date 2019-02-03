@@ -245,6 +245,7 @@ public:
 	}
 
 	static void numset(const string& nums, set<size_t>* out) {
+		if (nums == "-") return;
 		assert(out);
 		vector<string> cols;
 		split(nums, ",", &cols);
