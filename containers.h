@@ -56,6 +56,16 @@ public:
 		return 0;
 	}
 
+	template <typename T>
+	static size_t index_of(const vector<T>& input,
+			       const T& val) {
+		size_t i = 0;
+		for (; i < input.size(); ++i) {
+			if (val == input[i]) return i;
+		}
+		return i;
+	}
+
 protected:
 	Containers() {}
 	~Containers() {}
