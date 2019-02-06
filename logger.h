@@ -250,6 +250,14 @@ public:
 		return ss.str();
 	}
 
+	static string nicebinary(const string& val) {
+		string retval = val;
+		for (size_t i = 0; i < retval.size(); ++i) {
+			if (!isprint(retval[i])) retval[i] = '.';
+		}
+		return retval;
+	}
+
 	static string stringify(const string& val) {
 //		for (auto &x : val) {
 //			if (!isprint(x) && x != '\n') {
