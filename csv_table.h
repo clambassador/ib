@@ -219,6 +219,10 @@ public:
 	}
 
 	virtual bool get_next_row(vector<string>* data) {
+		return get_next_row(data, nullptr);
+	}
+
+	virtual bool get_next_row(vector<string>* data, stringstream* dup) {
 		assert(_mode == STREAM);
 		assert(data);
 
@@ -236,6 +240,7 @@ public:
 					try {
 						string line;
 						getline(*_in, line);
+						if (dup) *dup << line;
 						while (true) {
 							data->push_back(
 							    Formatting::csv_read(line,
@@ -248,6 +253,7 @@ public:
 				assert(has_header);
 				string s;
 				getline(*_in, s);
+				if (dup) *dup << s;
 				for (int i = 0; i < _headers.size(); ++i) {
 					data->push_back(
 					    Formatting::csv_read(s, i + 1));
