@@ -1,9 +1,15 @@
+#include "ib/base64.h"
 #include "ib/config.h"
+#include "ib/logger.h"
 
 using namespace ib;
 using namespace std;
 
-int main() {
+int main(int argc, char** argv) {
+	if (argc == 2) {
+		Config cfg;
+		cfg.load_from_arg(Base64::decode(argv[1]));
+	}
 
 	Config::_()->load("tests/resources/", "test_config");
 
