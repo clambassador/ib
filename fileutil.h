@@ -17,6 +17,16 @@ namespace ib {
 
 class Fileutil {
 public:
+	static vector<string> read_stream(istream& in) {
+		vector<string> retval;
+		while (true) {
+			string s;
+			getline(in, s);
+			if (!in.good()) return retval;
+			retval.push_back(move(s));
+		}
+	}
+
 	static int read_binary_file(const string& file_name,
 			     string* output) {
 		if (file_name.empty()) return -1;

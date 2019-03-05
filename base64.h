@@ -11,6 +11,17 @@ namespace ib {
 
 class Base64 {
 public:
+	static string reduce(const string& s) {
+		stringstream ss;
+		for (auto& x : s) {
+			if (x >= 'a' && x <= 'z') ss << x;
+			if (x >= 'A' && x <= 'Z') ss << x;
+			if (x >= '0' && x <= '9') ss << x;
+			if (x == '+' || x == '/' || x == '=') ss << x;
+		}
+		return ss.str();
+	}
+
 	static string decode(const string& s) {
                 if (s.empty()) return "";
                 static const int _index [256] = {
@@ -33,6 +44,10 @@ public:
 			        (_index[p[i + 1]] << 12) |
 				(_index[p[i + 2]] << 6) |
 				_index[p[i + 3]];
+			if (p[i] == '\n'
+			    || p[i + 1] == '\n'
+			    || p[i + 2] == '\n'
+			    || p[i + 3] == '\n') return decode(reduce(s));
                         str[j++] = n >> 16;
                         str[j++] = (n >> 8) & 0xFF;
                         str[j++] = n & 0xFF;
