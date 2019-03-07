@@ -11,6 +11,45 @@ namespace ib {
 
 class Base64 {
 public:
+	static size_t encoded_len(size_t len) {
+		return 1 + ((len + 2) / 3 * 4);
+	}
+
+	static string encode(const char* str, int len) {
+		stringstream ss;
+		static const string base =
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz"
+			"0123456789+/";
+		size_t i;
+		for (i = 0; i < len - 2; i += 3) {
+			ss << base[(str[i] >> 2) & 0x3f];
+			ss << base[((str[i] & 0x3) << 4) |
+				   ((int) (str[i + 1] & 0xf0) >> 4)];
+			ss << base[((str[i + 1] & 0xf) << 2) |
+				   ((int) (str[i + 2] & 0xc0) >> 6)];
+			ss << base[str[i + 2] & 0x3f];
+		}
+
+		if (i < len) {
+			ss << base[(str[i] >> 2) & 0x3f];
+			if (i == (len - 1)) {
+				ss << base[((str[i] & 0x3) << 4)];
+				ss << '=';
+			} else {
+				ss << base[((str[i] & 0x3) << 4) |
+				           ((int) (str[i + 1] & 0xf0) >> 4)];
+				ss << base[((str[i + 1] & 0xF) << 2)];
+			}
+			ss << '=';
+		}
+		return ss.str();
+	}
+
+	static string encode(const string& str) {
+		return encode(str.c_str(), str.length());
+	}
+
 	static string reduce(const string& s) {
 		stringstream ss;
 		for (auto& x : s) {

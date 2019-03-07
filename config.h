@@ -119,19 +119,20 @@ public:
 	}
 
 	template<typename T>
-	string form_name(stringstream& ss, const T& value) {
+	string form_name(stringstream& ss, const T& value) const {
 		ss << value;
 		return ss.str();
 	}
 
 	template<typename T, typename... Args>
-	string form_name(stringstream& ss, const T& value, const Args&... args) {
+	string form_name(stringstream& ss, const T& value,
+			 const Args&... args) const {
 		ss << value << "_";
 		return form_name(ss, args...);
 	}
 
 	template<typename... Args>
-	string form_name(const Args&... args) {
+	string form_name(const Args&... args) const {
 		stringstream ss;
 		return form_name(ss, args...);
 	}
@@ -147,29 +148,29 @@ public:
 	}
 
 	template<typename... Args>
-	string gets(const Args&... args) {
+	string gets(const Args&... args) const {
 		string name = form_name(args...);
 		return gets(name);
 	}
 
-	string gets(const string& name) {
+	string gets(const string& name) const {
 		if (_name_to_string.count(name) == 0) {
 			return "";
 		}
-		return _name_to_string[name];
+		return _name_to_string.at(name);
 	}
 
 	template<typename... Args>
-	uint64_t get(const Args&... args) {
+	uint64_t get(const Args&... args) const {
 		string name = form_name(args...);
 		return get(name);
 	}
 
-	uint64_t get(const string& name) {
+	uint64_t get(const string& name) const {
 		if (_name_to_list.count(name) == 0) {
 			return 0;
 		}
-		return _name_to_list[name].back();
+		return _name_to_list.at(name).back();
 	}
 
 	template<typename... Args>
