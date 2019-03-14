@@ -39,6 +39,17 @@ public:
 		return 0;
 	}
 
+	static int write_new_file(const string& file_name,
+				  const string& data) {
+		if (file_name.empty()) return -1;
+		if (exists(file_name)) return -1;
+		ofstream fout(file_name);
+		if (!fout.good()) return -1;
+		fout << data;
+		if (!fout.good()) return -1;
+		return 0;
+	}
+
 	static int read_file(const string& file_name,
 			     string* output) {
 		if (file_name.empty()) return -1;
@@ -53,6 +64,17 @@ public:
 		assert(fin.good());
 		*output = buffer.str();
 		return 0;
+	}
+
+	static string strip_extension(const string& filename) {
+		assert(!filename.empty());
+		size_t i = filename.length();
+		while (--i > 0) {
+			if (filename[i] == '.') {
+				return filename.substr(0, i);
+			}
+		}
+		return filename;
 	}
 
 	static string maybe_strip_extension(const string& extension,
