@@ -22,7 +22,7 @@ public:
 			"abcdefghijklmnopqrstuvwxyz"
 			"0123456789+/";
 		size_t i;
-		for (i = 0; i < len - 2; i += 3) {
+		for (i = 0; i + 2 < len; i += 3) {
 			ss << base[(str[i] >> 2) & 0x3f];
 			ss << base[((str[i] & 0x3) << 4) |
 				   ((int) (str[i + 1] & 0xf0) >> 4)];
