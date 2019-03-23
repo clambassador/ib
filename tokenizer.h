@@ -33,26 +33,47 @@ public:
 	}
 
 	static void annotate_quote(const string& data, string* annotated) {
-		bool in_quote = false;
+		int in_quote = 0;
 		char chr[2] = {'_', '\''};
 		size_t i = 0;
 		annotated->resize(data.length());
 		while (i < data.length()) {
 			if (data[i] == '\\') {
-				(*annotated)[i] += chr[in_quote];
-				(*annotated)[i] += chr[in_quote];
+				(*annotated)[i] += chr[!!in_quote];
+				(*annotated)[i + 1] += chr[!!in_quote];
 				i += 2;
 				continue;
 			}
-			if (data[i] == '\"') {
-				(*annotated)[i] += '\"';
-				++i;
-				in_quote = !in_quote;
-				continue;
+			if (data[i] == '\"' || data[i] == '\'') {
+				if (in_quote == data[i]) {
+					(*annotated)[i] += '\"';
+					++i;
+					in_quote = 0;
+					continue;
+				} else if (!in_quote) {
+					(*annotated)[i] += '\"';
+                                        in_quote = data[i];
+                                        ++i;
+                                        continue;
+				}
 			}
-			(*annotated)[i] += chr[in_quote];
+			(*annotated)[i] += chr[!!in_quote];
 			++i;
 		}
+	}
+
+	static string collapse_quote(const string& data) {
+		string annotate;
+		string retval;
+		stringstream ss;
+		annotate_quote(data, &annotate);
+		set<char> chr;
+		chr.insert('_');
+		chr.insert('\'');
+		for (size_t i = 0; i < data.length(); ++i) {
+			if (chr.count(annotate[i])) ss << data[i];
+		}
+		return ss.str();
 	}
 
 	static string hex_unescape(const string& data) {
@@ -292,6 +313,8 @@ public:
 		size_t pos = 0;
 		string quote;
 		annotate_quote(data, &quote);
+		cout << data << endl << quote << endl;
+
 		size_t start = pos;
 		while (true) {
 			pos = data.find(deliminator, pos);
