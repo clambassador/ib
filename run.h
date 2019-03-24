@@ -69,6 +69,9 @@ public:
 		_pipes.push_back(nullptr);
 		_pipes.back().reset(new PipePair());
 		Tokenizer::split_mind_quote(cmd, " ", &_argvs.back());
+		for (size_t i = 0; i < _argvs.size(); ++i) {
+			_argvs.back()[i] = Tokenizer::collapse_quote(_argvs.back()[i]);
+		}
 	}
 
 protected:
@@ -217,6 +220,7 @@ protected:
 			strncpy(retval[i], _argvs[pos][i].c_str(),
 			       _argvs[pos][i].length());
 			retval[i][_argvs[pos][i].length()] = 0;
+			cout << retval[i] << endl;
 		}
 		retval[_argvs[pos].size()] = nullptr;
 		return retval;

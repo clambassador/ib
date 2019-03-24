@@ -11,6 +11,56 @@ namespace ib {
 
 class Base64 {
 public:
+	static size_t encoded_len(size_t len) {
+		return 1 + ((len + 2) / 3 * 4);
+	}
+
+	static string encode(const char* str, int len) {
+		stringstream ss;
+		static const string base =
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz"
+			"0123456789+/";
+		size_t i;
+		for (i = 0; i + 2 < len; i += 3) {
+			ss << base[(str[i] >> 2) & 0x3f];
+			ss << base[((str[i] & 0x3) << 4) |
+				   ((int) (str[i + 1] & 0xf0) >> 4)];
+			ss << base[((str[i + 1] & 0xf) << 2) |
+				   ((int) (str[i + 2] & 0xc0) >> 6)];
+			ss << base[str[i + 2] & 0x3f];
+		}
+
+		if (i < len) {
+			ss << base[(str[i] >> 2) & 0x3f];
+			if (i == (len - 1)) {
+				ss << base[((str[i] & 0x3) << 4)];
+				ss << '=';
+			} else {
+				ss << base[((str[i] & 0x3) << 4) |
+				           ((int) (str[i + 1] & 0xf0) >> 4)];
+				ss << base[((str[i + 1] & 0xF) << 2)];
+			}
+			ss << '=';
+		}
+		return ss.str();
+	}
+
+	static string encode(const string& str) {
+		return encode(str.c_str(), str.length());
+	}
+
+	static string reduce(const string& s) {
+		stringstream ss;
+		for (auto& x : s) {
+			if (x >= 'a' && x <= 'z') ss << x;
+			if (x >= 'A' && x <= 'Z') ss << x;
+			if (x >= '0' && x <= '9') ss << x;
+			if (x == '+' || x == '/' || x == '=') ss << x;
+		}
+		return ss.str();
+	}
+
 	static string decode(const string& s) {
                 if (s.empty()) return "";
                 static const int _index [256] = {
@@ -33,6 +83,10 @@ public:
 			        (_index[p[i + 1]] << 12) |
 				(_index[p[i + 2]] << 6) |
 				_index[p[i + 3]];
+			if (p[i] == '\n'
+			    || p[i + 1] == '\n'
+			    || p[i + 2] == '\n'
+			    || p[i + 3] == '\n') return decode(reduce(s));
                         str[j++] = n >> 16;
                         str[j++] = (n >> 8) & 0xFF;
                         str[j++] = n & 0xFF;

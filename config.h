@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "ib/base64.h"
 #include "ib/logger.h"
 #include "ib/tokenizer.h"
 
@@ -29,6 +30,13 @@ public:
 		return _impl.get();
 	}
 
+	int load_from_arg(const string& data) {
+		stringstream ss;
+		ss << Base64::decode(data);
+		load(ss);
+		return 0;
+	}
+
 	int load(const string& config_filename) {
 		assert(!config_filename.empty());
 		if (config_filename[0] == '/') return load("/.", config_filename);
@@ -38,13 +46,18 @@ public:
 
 	int load(const string& directory, const string& config_filename) {
 		ifstream fin(directory + "/" + config_filename, ios::in);
+		_directory = directory;
+		return load(fin);
+	}
+
+	int load(istream& in) {
 		vector<string> prefices;
 		prefices.push_back("");
-		if (!fin.good()) return -1;
-		while (fin.good()) {
+		if (!in.good()) return -1;
+		while (in.good()) {
 			string name;
 			uint64_t val;
-			fin >> name;
+			in >> name;
 			if (name.empty()) continue;
 
 			if (name.substr(0, 2) == "//")
@@ -52,19 +65,19 @@ public:
 
 			if (name.substr(0, 8) == "#include") {
 				string file;
-				fin >> file;
-				load(directory, file);
+				in >> file;
+				load(_directory, file);
 				continue;
 			}
 
 			if (name.substr(0, 6) == "prefix") {
 				string prefix;
-				fin >> prefix;
+				in >> prefix;
 				prefices.push_back(
 					prefices.back() +
 					prefix + "_");
 				string temp;
-				fin >> temp;
+				in >> temp;
 				assert(temp == "{");
 				continue;
 			}
@@ -75,12 +88,12 @@ public:
 			}
 			if (name == "string") {
 				string sval;
-				fin >> name;
-				getline(fin, sval);
+				in >> name;
+				getline(in, sval);
 				sval = Tokenizer::trim(sval);
 				_name_to_string[prefices.back() + name] = sval;
 			} else {
-				fin >> val;
+				in >> val;
 				_name_to_list[prefices.back() + name].push_back(val);
 			}
 		}
@@ -106,19 +119,20 @@ public:
 	}
 
 	template<typename T>
-	string form_name(stringstream& ss, const T& value) {
+	string form_name(stringstream& ss, const T& value) const {
 		ss << value;
 		return ss.str();
 	}
 
 	template<typename T, typename... Args>
-	string form_name(stringstream& ss, const T& value, const Args&... args) {
+	string form_name(stringstream& ss, const T& value,
+			 const Args&... args) const {
 		ss << value << "_";
 		return form_name(ss, args...);
 	}
 
 	template<typename... Args>
-	string form_name(const Args&... args) {
+	string form_name(const Args&... args) const {
 		stringstream ss;
 		return form_name(ss, args...);
 	}
@@ -134,29 +148,29 @@ public:
 	}
 
 	template<typename... Args>
-	string gets(const Args&... args) {
+	string gets(const Args&... args) const {
 		string name = form_name(args...);
 		return gets(name);
 	}
 
-	string gets(const string& name) {
+	string gets(const string& name) const {
 		if (_name_to_string.count(name) == 0) {
 			return "";
 		}
-		return _name_to_string[name];
+		return _name_to_string.at(name);
 	}
 
 	template<typename... Args>
-	uint64_t get(const Args&... args) {
+	uint64_t get(const Args&... args) const {
 		string name = form_name(args...);
 		return get(name);
 	}
 
-	uint64_t get(const string& name) {
+	uint64_t get(const string& name) const {
 		if (_name_to_list.count(name) == 0) {
 			return 0;
 		}
-		return _name_to_list[name].back();
+		return _name_to_list.at(name).back();
 	}
 
 	template<typename... Args>
@@ -188,6 +202,7 @@ protected:
 	map<string, list<uint64_t> > _name_to_list;
 	map<string, string> _name_to_string;
 	static unique_ptr<Config> _impl;
+	string _directory;
 
 };
 

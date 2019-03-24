@@ -36,6 +36,13 @@ int main() {
 	Tokenizer::split_mind_quote("hello there \"good people\"", " ", &tokens);
 	Logger::info("%", tokens);
 	tokens.clear();
+	Tokenizer::split_mind_quote("hell'o t'here go\"od pe\"ople", " ", &tokens);
+	Logger::info("%", tokens);
+	tokens.clear();
+
+	string quotestr = "here \"is a\" string wit'h some 'quotes";
+
+	Logger::info("% -> %", quotestr, Tokenizer::collapse_quote(quotestr));
 
 	int val = 0;
 	int ret = Tokenizer::extract("(%)", "(42)", &val);

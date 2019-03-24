@@ -15,9 +15,11 @@ tools['json_to_csv.cc'] = 'json_to_csv'
 tools['extract_all.cc'] = 'extract_all'
 tools['zcat.cc'] = 'zcat'
 tests = dict()
+tests['test_graph.cc'] = 'test_graph'
 tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
 tests['test_config.cc'] = 'test_config'
+tests['test_simpleconfig.cc'] = 'test_simpleconfig'
 tests['test_run.cc'] = 'test_run'
 tests['test_run_abort.cc'] = 'test_run_abort'
 tests['test_tokenizer.cc'] = 'test_tokenizer'
@@ -38,6 +40,7 @@ libs = Split("""z
 	     """)
 env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -O2 --std=c++11", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'
+env['ENV']['TARGET'] = 'bin/'
 
 Decider('MD5')
 for i in tests:

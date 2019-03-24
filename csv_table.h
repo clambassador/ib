@@ -82,10 +82,9 @@ public:
 	static int load_map(const string& csv_file, map<string, string>* out) {
 		CSVTable table;
 		table.stream(csv_file);
-		assert(table.cols() == 2);
 		vector<string> data;
 		while (table.get_next_row(&data)) {
-			assert(data.size() == 2);
+			if (data.size() != 2) continue;
 			(*out)[data[0]] = data[1];
 			data.clear();
 		}
