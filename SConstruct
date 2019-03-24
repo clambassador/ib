@@ -15,6 +15,7 @@ tools['json_to_csv.cc'] = 'json_to_csv'
 tools['extract_all.cc'] = 'extract_all'
 tools['zcat.cc'] = 'zcat'
 tests = dict()
+tests['test_graph.cc'] = 'test_graph'
 tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
 tests['test_config.cc'] = 'test_config'
