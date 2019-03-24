@@ -147,7 +147,7 @@ public:
 	static string replace(const string& data, const string& find,
 			      const string& replacement) {
 		vector<string> pieces;
-		split(data, find, &pieces);
+		split_with_empty(data, find, &pieces);
 		if (pieces.size() < 2) return data;
 		stringstream ss;
 		ss << pieces[0];
