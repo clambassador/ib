@@ -36,7 +36,7 @@ tests['csv_to_xml.cc'] = 'csv_to_xml'
 
 libs = Split("""z
 	     """)
-env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11", LIBS=libs, CPPPATH="..")
+env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -O2 --std=c++11", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'
 
 Decider('MD5')
