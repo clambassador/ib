@@ -40,11 +40,22 @@ public:
 	};
 
 	void add_node(const T& val) {
+		assert(!_nodes.count(val));
 		_nodes[val].reset(new Node<T>(val));
 	}
 
 	void add_node(T* val) {
 		_nodes[*val].reset(new Node<T>(val));
+	}
+
+	void add_join_nodes(const T& one, const T& two) {
+		if (!_nodes.count(one)) {
+			add_node(one);
+		}
+		if (!_nodes.count(two)) {
+			add_node(two);
+		}
+		join_nodes(one, two);
 	}
 
 	void join_nodes(const T& one, const T& two) {
@@ -57,6 +68,8 @@ public:
 	}
 
 	void build_reachability(size_t max_depth) {
+		_reachable.clear();
+		_depth = max_depth;
 		for (auto &x : _nodes) {
 			_reachable[x.first] = find_reachable(x.first,
 							     max_depth);
@@ -81,9 +94,23 @@ public:
 		return reachable;
 	}
 
+	bool is_connected(const T& one, const T& two) {
+		return is_connected(one, two, 0);
+	}
+
+	bool is_connected(const T& one, const T& two, size_t depth) {
+		assert(_nodes.count(one));
+		assert(_nodes.count(two));
+		if (_depth == depth && _reachable.count(one)) {
+			return _reachable[one].count(_nodes[two].get());
+		}
+		return find_reachable(one, depth).count(_nodes[two].get());
+	}
+
 protected:
 	map<T, unique_ptr<Node<T>>> _nodes;
 	map<T, set<Node<T>*>> _reachable;
+	size_t _depth;
 
 };
 
