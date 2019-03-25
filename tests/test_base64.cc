@@ -6,6 +6,13 @@ using namespace ib;
 using namespace std;
 
 int main() {
+	string standard =
+	    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	string alt =
+	    "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+
+	assert(Base64::decode("aGVsbG8=", standard) == "hello");
+	assert(Base64::decode("aGVsbG8=", alt) != "hello");
 	assert(Base64::decode("aGVsbG8=") == "hello");
 	assert(Base64::decode("dG9vdA==") == "toot");
 	assert(Base64::decode("") == "");

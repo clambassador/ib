@@ -14,6 +14,7 @@ tools['hex_unescape.cc'] = 'hex_unescape'
 tools['json_to_csv.cc'] = 'json_to_csv'
 tools['extract_all.cc'] = 'extract_all'
 tools['zcat.cc'] = 'zcat'
+tools['alt_base64.cc'] = 'alt_base64'
 tests = dict()
 tests['test_graph.cc'] = 'test_graph'
 tests['test_limiter.cc'] = 'test_limiter'

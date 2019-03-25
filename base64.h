@@ -1,6 +1,8 @@
 #ifndef __IB__BASE64__H__
 #define __IB__BASE64__H__
 
+#include <cassert>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -71,7 +73,28 @@ public:
 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0, 0,  0, 0, 63,  0, 26, 27, 28,
 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
 49, 50, 51 };
+		return decode(s, _index);
+	}
 
+	static string decode(const string& s, const string& alphabet) {
+// "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+		assert(alphabet.length() == 64);
+		int index[256];
+		map<char, int> where;
+		for (size_t i = 0; i < 64; ++i) {
+			assert(!where.count(alphabet[i]));
+			where[alphabet[i]] = i;
+		}
+		for (size_t i = 0; i < 256; ++i) {
+			index[i] = 0;
+			if (where.count((char) i)) {
+				index[i] = where[i];
+			}
+		}
+		return decode(s, index);
+	}
+
+	static string decode(const string& s, const int _index[256]) {
                 unsigned char* p = (unsigned char*) s.c_str();
                 int len = s.length();
 
