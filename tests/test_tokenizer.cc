@@ -200,5 +200,9 @@ TODO: allow other symbols than percent to allow reading 5 from 5%
 		Logger::info("longest prefix % %", data,
 			     Tokenizer::longest_prefix(data));
 	}
+	Logger::info("%", Tokenizer::tokenize("aa,bb,{{{{{}a",
+					      "a", "bb", "{}"));
+
+
 
 }

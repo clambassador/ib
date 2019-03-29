@@ -15,6 +15,51 @@ namespace ib {
 
 class Tokenizer {
 public:
+	template <typename... Args>
+	static vector<string> tokenize(const string& s,
+				       const Args&... rules) {
+		vector<string> retval;
+		set<string> tokens;
+		form_tokens(&tokens, rules...);
+		size_t i = 0;
+		while (i < s.length()) {
+			string rule;
+			size_t pos = string::npos;
+			for (auto& which : tokens) {
+				size_t where = match_rule(s, i, which);
+				if (where != string::npos && where < pos) {
+					pos = where;
+					rule = which;
+				}
+			}
+			if (pos == string::npos) break;
+
+			i = pos;
+			retval.push_back(extract_rule(s, i, rule));
+			assert(retval.back().length());
+			i += retval.back().length();
+		}
+		return retval;
+	}
+
+	template <typename... Args>
+	static void form_tokens(set<string>* out, const string& car, const Args&... cdr) {
+		out->insert(car);
+		form_tokens(out, cdr...);
+	}
+
+	static void form_tokens(set<string>* out) {}
+
+	static size_t match_rule(const string& s, size_t pos, const string& rule) {
+		// TODO generic rules
+		return s.find(rule, pos);
+	}
+
+	static string extract_rule(const string& s, size_t pos, const string& rule) {
+		// TODO generic rules
+		return rule;
+	}
+
 	static string longest_prefix(const vector<string>& vals) {
 		if (vals.empty()) return "";
 		if (vals.size() == 1) return vals[0];
