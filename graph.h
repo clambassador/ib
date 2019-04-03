@@ -39,6 +39,10 @@ public:
 		set<Node<R> *> _edges;
 	};
 
+	void maybe_add_node(const T& val) {
+		if (!_nodes.count(val)) _nodes[val].reset(new Node<T>(val));
+	}
+
 	void add_node(const T& val) {
 		assert(!_nodes.count(val));
 		_nodes[val].reset(new Node<T>(val));
@@ -65,6 +69,14 @@ public:
 		assert(_nodes[two].get());
 		_nodes[one]->add_edge(_nodes[two].get());
 		_nodes[two]->add_edge(_nodes[one].get());
+	}
+
+	void directed_join_nodes(const T& one, const T& two) {
+		assert(_nodes.count(one));
+		assert(_nodes.count(two));
+		assert(_nodes[one].get());
+		assert(_nodes[two].get());
+		_nodes[one]->add_edge(_nodes[two].get());
 	}
 
 	void build_reachability(size_t max_depth) {
@@ -107,7 +119,34 @@ public:
 		return find_reachable(one, depth).count(_nodes[two].get());
 	}
 
+	vector<T> get_path(const T& one, const T& two) {
+		vector<T> ret;
+		ret.push_back(one);
+		if (get_path_impl(two, &ret)) return ret;
+		return vector<T>();
+	}
+
 protected:
+	bool get_path_impl(const T& two, vector<T>* path) {
+		for (auto &x : _nodes[path->back()]->edges()) {
+			if (x == _nodes[two].get()) {
+				path->push_back(two);
+				return true;
+			}
+		}
+		for (auto &x : _nodes[path->back()]->edges()) {
+			bool skip = false;
+			for (auto &y : *path) {
+				if (_nodes[y].get() == x) skip = true;
+			}
+			if (skip) continue;
+			path->push_back(x->data());
+			if (get_path_impl(two, path)) return true;
+			path->pop_back();
+		}
+		return false;
+	}
+
 	map<T, unique_ptr<Node<T>>> _nodes;
 	map<T, set<Node<T>*>> _reachable;
 	size_t _depth;

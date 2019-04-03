@@ -38,4 +38,16 @@ int main() {
 	trace(g.find_reachable("n2", 1));
 	trace(g.find_reachable("n2", 2));
 	trace(g.find_reachable("n2", 5));
+
+	Logger::info("%", g.get_path("n1", "n7"));
+	Logger::info("%", g.get_path("n2", "n8"));
+	Logger::info("%", g.get_path("n4", "n5"));
+
+	g.add_node("n9");
+	g.add_node("n10");
+	g.directed_join_nodes("n9", "n10");
+	Logger::info("%", g.get_path("n9", "n10"));
+	Logger::info("%", g.get_path("n5", "n10"));
+	Logger::info("%", g.get_path("n10", "n9"));
+
 }
