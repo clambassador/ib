@@ -18,28 +18,57 @@ public:
 
 	virtual void add_token(const string& token,
 			       const string& matcher) {
-		_token_to_match.insert(make_pair(token, regex(matcher)));
+		_token_to_match.insert(
+			make_pair(token,
+				  make_pair(smatch(), regex(matcher))));
 
 	}
 
-	virtual void tokenize(const string& s) {
-		smatch m;
-		for (auto &x : _token_to_match) {
-			regex_search(s, m, x.second);
-			for (auto &y : m) {
-				cout << x.first << "=" << y << endl;
+	virtual vector<tuple<string, string, size_t>> tokenize(const string& s) {
+		vector<tuple<string, string, size_t>> retval;
+		string t = s;
+		size_t last_pos = 0;
+		while (last_pos < s.length()) {
+			multimap<string, pair<smatch, regex>>::iterator it;
+			size_t min_pos = (size_t) - 1;
+			for (auto x = _token_to_match.begin();
+			     x != _token_to_match.end(); ++x) {
+				regex_search(t, x->second.first, x->second.second);
+				if (x->second.first.position() < min_pos) {
+					it = x;
+					min_pos = x->second.first.position();
+				}
 			}
+			if (_match_whitespace) {
+				retval.push_back(make_tuple(
+					"WHITESPACE",
+					it->second.first.prefix(),
+				//	s.substr(last_pos,
+				//		 it->second.first.position() -
+				//		 last_pos),
+					last_pos));
+			}
+
+			retval.push_back(make_tuple(
+				it->first, it->second.first.str(),
+				last_pos + it->second.first.position()));
+			t = it->second.first.suffix();
+			last_pos = s.length() - t.length();
+		}
+		if (_match_whitespace) {
+			retval.push_back(make_tuple(
+				"WHITESPACE",
+				t,
+				last_pos));
 		}
 
-		// TODO: conver this to a vector of pairs
-		// <token_type, token_value>
-		// include white space
+		return retval;
 	}
 
 protected:
 	bool _match_whitespace;
 
-	multimap<string, regex> _token_to_match;
+	multimap<string, pair<smatch, regex> > _token_to_match;
 
 };
 
