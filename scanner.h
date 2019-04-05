@@ -39,7 +39,8 @@ public:
 					min_pos = x->second.first.position();
 				}
 			}
-			if (_match_whitespace) {
+			if (_match_whitespace &&
+			    it->second.first.prefix().length()) {
 				retval.push_back(make_tuple(
 					"WHITESPACE",
 					it->second.first.prefix(),
@@ -49,13 +50,15 @@ public:
 					last_pos));
 			}
 
-			retval.push_back(make_tuple(
-				it->first, it->second.first.str(),
-				last_pos + it->second.first.position()));
+			if (it->second.first.position() < t.length()) {
+				retval.push_back(make_tuple(
+					it->first, it->second.first.str(),
+					last_pos + it->second.first.position()));
+			}
 			t = it->second.first.suffix();
 			last_pos = s.length() - t.length();
 		}
-		if (_match_whitespace) {
+		if (_match_whitespace && t.length()) {
 			retval.push_back(make_tuple(
 				"WHITESPACE",
 				t,
