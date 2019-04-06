@@ -39,15 +39,16 @@ public:
 					min_pos = x->second.first.position();
 				}
 			}
-			if (_match_whitespace &&
-			    it->second.first.prefix().length()) {
+			if (_match_whitespace) {
+				string val;
+				if (it->second.first.prefix().length()) {
+					val = it->second.first.prefix();
+				} else if (t.length() &&
+					   it->second.first.position() >= t.length()) {
+					val = t;
+				}
 				retval.push_back(make_tuple(
-					"WHITESPACE",
-					it->second.first.prefix(),
-				//	s.substr(last_pos,
-				//		 it->second.first.position() -
-				//		 last_pos),
-					last_pos));
+					"WHITESPACE", val, last_pos));
 			}
 
 			if (it->second.first.position() < t.length()) {
@@ -57,12 +58,6 @@ public:
 			}
 			t = it->second.first.suffix();
 			last_pos = s.length() - t.length();
-		}
-		if (_match_whitespace && t.length()) {
-			retval.push_back(make_tuple(
-				"WHITESPACE",
-				t,
-				last_pos));
 		}
 
 		return retval;
