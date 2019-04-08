@@ -126,6 +126,43 @@ public:
 		return vector<T>();
 	}
 
+	set<T> greedy_cover() {
+		set<T> retval;
+		map<T, bool> in;
+		map<T, bool> on;
+		for (auto &x : _nodes) {
+			if (x.second._edges.count()) {
+				in[x.first] = false;
+			} else {
+				on[x.first] = false;
+			}
+		}
+		size_t totalcount = 0;
+		size_t rounds = 0;
+		while (true) {
+			size_t maxcount = 0;
+			T pos;
+			for (auto &x : in) {
+				if (x.second) continue;
+				size_t count = 0;
+				for (auto &y : _nodes[x.first]._edges) {
+					if (!on[y]) count++;
+				}
+				if (count > maxcount) {
+					maxcount = count;
+					pos = x.first;
+				}
+			}
+			in[pos] = true;
+			rounds++;
+			totalcount += maxcount;
+			for (auto &x : _nodes[pos]._edges) {
+				on[x] = true;
+			}
+			Logger::info("round % touches %", rounds, totalcount);
+		}
+	}
+
 protected:
 	bool get_path_impl(const T& two, vector<T>* path) {
 		for (auto &x : _nodes[path->back()]->edges()) {

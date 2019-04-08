@@ -13,6 +13,11 @@ void trace(const set<Graph<string>::Node<string>*>& nodes) {
 	cout << endl << endl;
 }
 
+void cover_test() {
+	Graph<string> g;
+
+}
+
 int main() {
 	Graph<string> g;
 	g.add_node("n1");
@@ -50,4 +55,5 @@ int main() {
 	Logger::info("%", g.get_path("n5", "n10"));
 	Logger::info("%", g.get_path("n10", "n9"));
 
+	cover_test();
 }
