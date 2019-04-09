@@ -17,6 +17,7 @@ tools['zcat.cc'] = 'zcat'
 tools['alt_base64.cc'] = 'alt_base64'
 tests = dict()
 tests['test_graph.cc'] = 'test_graph'
+tests['test_down_up_next_parser.cc'] = 'test_down_up_next_parser'
 tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
 tests['test_config.cc'] = 'test_config'
@@ -40,7 +41,7 @@ tests['csv_to_xml.cc'] = 'csv_to_xml'
 
 libs = Split("""z
 	     """)
-env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -O2 --std=c++11", LIBS=libs, CPPPATH="..")
+env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'
 env['ENV']['TARGET'] = 'bin/'
 
