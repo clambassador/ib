@@ -7,6 +7,7 @@ common = Split("""config.cc
 		  fileutil.cc
 	       """)
 tools = dict()
+tools['xor_pref.cc'] = 'xor_pref'
 tools['xor.cc'] = 'xor'
 tools['slidemask.cc'] = 'slidemask'
 tools['csv_join.cc'] = 'csv_join'
