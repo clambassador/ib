@@ -32,6 +32,13 @@ public:
 			_edges.insert(other);
 		}
 
+		bool has_edge(const R& target) {
+			for (auto& x: _edges) {
+				if (x->data() == target) return true;
+			}
+			return false;
+		}
+
 		set<Node<R> *> edges() { return _edges; }
 
 	protected:
@@ -60,6 +67,16 @@ public:
 			add_node(two);
 		}
 		join_nodes(one, two);
+	}
+
+	void add_directed_join_nodes(const T& one, const T& two) {
+		if (!_nodes.count(one)) {
+			add_node(one);
+		}
+		if (!_nodes.count(two)) {
+			add_node(two);
+		}
+		directed_join_nodes(one, two);
 	}
 
 	void join_nodes(const T& one, const T& two) {
@@ -131,7 +148,7 @@ public:
 		map<T, bool> in;
 		map<T, bool> on;
 		for (auto &x : _nodes) {
-			if (x.second._edges.count()) {
+			if (x.second->edges().size()) {
 				in[x.first] = false;
 			} else {
 				on[x.first] = false;
@@ -142,24 +159,27 @@ public:
 		while (true) {
 			size_t maxcount = 0;
 			T pos;
+			bool posset = false;
 			for (auto &x : in) {
 				if (x.second) continue;
 				size_t count = 0;
-				for (auto &y : _nodes[x.first]._edges) {
-					if (!on[y]) count++;
+				for (auto &y : _nodes[x.first]->edges()) {
+					if (!on[y->data()]) count++;
 				}
 				if (count > maxcount) {
 					maxcount = count;
 					pos = x.first;
+					posset = true;
 				}
 			}
+			if (!posset) return retval;
 			in[pos] = true;
+			retval.insert(pos);
 			rounds++;
 			totalcount += maxcount;
-			for (auto &x : _nodes[pos]._edges) {
-				on[x] = true;
+			for (auto &x : _nodes[pos]->edges()) {
+				on[x->data()] = true;
 			}
-			Logger::info("round % touches %", rounds, totalcount);
 		}
 	}
 

@@ -15,7 +15,22 @@ void trace(const set<Graph<string>::Node<string>*>& nodes) {
 
 void cover_test() {
 	Graph<string> g;
+	g.add_directed_join_nodes("1", "a");
+	g.add_directed_join_nodes("2", "a");
+//	g.add_directed_join_nodes("9", "a");
+//	g.add_directed_join_nodes("1", "b");
+	g.add_directed_join_nodes("4", "b");
+	g.add_directed_join_nodes("5", "b");
+	g.add_directed_join_nodes("6", "c");
+	g.add_directed_join_nodes("5", "c");
+	g.add_directed_join_nodes("8", "c");
+	g.add_directed_join_nodes("7", "d");
+	g.add_directed_join_nodes("9", "d");
+//	g.add_directed_join_nodes("3", "d");
+	g.add_directed_join_nodes("3", "e");
 
+	set<string> cover = g.greedy_cover();
+	Logger::info("cover: %", cover);
 }
 
 int main() {
