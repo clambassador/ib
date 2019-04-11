@@ -144,6 +144,10 @@ public:
 	}
 
 	set<T> greedy_cover() {
+		return greedy_cover(0);
+	}
+
+	set<T> greedy_cover(size_t min_benefit) {
 		set<T> retval;
 		map<T, bool> in;
 		map<T, bool> on;
@@ -173,6 +177,7 @@ public:
 				}
 			}
 			if (!posset) return retval;
+			if (maxcount < min_benefit) return retval;
 			in[pos] = true;
 			retval.insert(pos);
 			rounds++;

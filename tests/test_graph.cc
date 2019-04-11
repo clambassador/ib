@@ -31,6 +31,8 @@ void cover_test() {
 
 	set<string> cover = g.greedy_cover();
 	Logger::info("cover: %", cover);
+	cover = g.greedy_cover(2);
+	Logger::info("cover: %", cover);
 }
 
 int main() {
