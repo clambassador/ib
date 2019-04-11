@@ -13,47 +13,35 @@ using namespace ib;
 class testset {
 public:
 	virtual void consider(const string& token, const string& val) {
-		_last = token;
 		if (token == "VAR") {
-			_term_children.insert(val);
+			_me = val;
 		}
-	}
-
-	virtual bool is_down() {
-		return _last == "DOWN";
-	}
-
-	virtual bool is_next() {
-		return _last == "NEXT";
-	}
-
-	virtual bool is_up() {
-		return _last == "UP";
+		cout << _me << " " << token << endl;
 	}
 
 	virtual void add_children(vector<unique_ptr<testset>>* children) {
 		for (auto &x : *children) {
-			_nonterm_children.push_back(nullptr);
-			_nonterm_children.back().reset(x.release());
+			_children.push_back(unique_ptr<testset>(x.release()));
 		}
 	}
 
 	virtual void trace() {
-		cout << "{";
-		for (auto &x : _term_children) {
-			cout << x << ",";
+		if (_children.empty()) {
+			assert(!_me.empty());
+			cout << _me << ",";
+			return;
+		} else {
+			cout << "{";
+			for (auto &x : _children) {
+				x->trace();
+			}
+			cout << "}";
 		}
-		for (auto &x : _nonterm_children) {
-			x->trace();
-		}
-		cout << "}";
 	}
 
 protected:
-	string _last;
-
-	set<string> _term_children;
-	vector<unique_ptr<testset>> _nonterm_children;
+	string _me;
+	vector<unique_ptr<testset>> _children;
 
 };
 
@@ -66,6 +54,7 @@ int main() {
 
 	string test = "{a,b,{c,d}}";
 	auto x = scanner.tokenize(test);
+	scanner.trace(x);
 	DownUpNextParser<testset> dup;
 	vector<unique_ptr<testset>> out;
 	dup.parse(x, &out);

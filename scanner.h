@@ -24,6 +24,13 @@ public:
 
 	}
 
+	static void trace(const vector<tuple<string, string, size_t>>& tokens) {
+		for (const auto &x : tokens) {
+			cout << get<0>(x) << " -> " << get<1>(x) << " at "
+			     << get<2>(x) << endl;
+		}
+	}
+
 	virtual vector<tuple<string, string, size_t>> tokenize(const string& s) {
 		vector<tuple<string, string, size_t>> retval;
 		string t = s;

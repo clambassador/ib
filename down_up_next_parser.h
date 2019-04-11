@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "ib/logger.h"
+
 using namespace std;
 
 namespace ib {
@@ -28,19 +30,22 @@ protected:
 		assert(out);
 		assert(pos);
 		unique_ptr<T> cur(new T());
+		Logger::debug("start at %", *pos);
 		while (*pos < tokens.size()) {
-			cur->consider(get<0>(tokens[*pos]),
-				      get<1>(tokens[*pos]));
+			string token = get<0>(tokens[*pos]);
+			Logger::debug("% % % %", token, get<1>(tokens[*pos]),
+				      *pos, tokens.size());
+			cur->consider(token, get<1>(tokens[*pos]));
 			++*pos;
-			if (cur->is_down()) {
+			if (token == "DOWN") {
 				vector<unique_ptr<T>> children;
 				assert(parse(tokens, &children, pos));
 				cur->add_children(&children);
-			} else if (cur->is_up()) {
-				return true;
-			} else if (cur->is_next()) {
+			} else if (token == "NEXT") {
+			} else if (token == "UP") {
 				out->push_back(unique_ptr<T>(cur.release()));
 				cur.reset(new T());
+				return true;
 			}
 		}
 		out->push_back(unique_ptr<T>(cur.release()));

@@ -38,6 +38,9 @@ public:
 			retval.push_back(extract_rule(s, i, rule));
 			assert(retval.back().length());
 			i += retval.back().length();
+			Logger::info("added % at % in %",
+				     retval.back(),
+				     pos, s);
 		}
 		return retval;
 	}
