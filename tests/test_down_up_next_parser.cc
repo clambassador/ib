@@ -35,7 +35,7 @@ public:
 			for (auto &x : _children) {
 				x->trace();
 			}
-			cout << "}";
+			cout << "},";
 		}
 	}
 
@@ -45,7 +45,7 @@ protected:
 
 };
 
-int main() {
+int main(int argc, char** argv) {
 	Scanner scanner;
 	scanner.add_token("DOWN", "\\{");
 	scanner.add_token("VAR", "[0-9a-z]+");
@@ -53,6 +53,7 @@ int main() {
 	scanner.add_token("NEXT", ",");
 
 	string test = "{a,b,{c,d}}";
+	if (argc == 2) test = argv[1];
 	auto x = scanner.tokenize(test);
 	scanner.trace(x);
 	DownUpNextParser<testset> dup;

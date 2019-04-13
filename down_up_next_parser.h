@@ -30,11 +30,8 @@ protected:
 		assert(out);
 		assert(pos);
 		unique_ptr<T> cur(new T());
-		Logger::debug("start at %", *pos);
 		while (*pos < tokens.size()) {
 			string token = get<0>(tokens[*pos]);
-			Logger::debug("% % % %", token, get<1>(tokens[*pos]),
-				      *pos, tokens.size());
 			cur->consider(token, get<1>(tokens[*pos]));
 			++*pos;
 			if (token == "DOWN") {
@@ -42,6 +39,8 @@ protected:
 				assert(parse(tokens, &children, pos));
 				cur->add_children(&children);
 			} else if (token == "NEXT") {
+				out->push_back(unique_ptr<T>(cur.release()));
+				cur.reset(new T());
 			} else if (token == "UP") {
 				out->push_back(unique_ptr<T>(cur.release()));
 				cur.reset(new T());
