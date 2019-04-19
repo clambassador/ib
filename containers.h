@@ -66,6 +66,32 @@ public:
 		return i;
 	}
 
+	template <typename T>
+	static set<T> setrange(T stop) {
+		return setrange((T) 0, stop);
+	}
+
+	template <typename T>
+	static set<T> setrange(T start, T stop) {
+		set<T> ret;
+		for (T t = start; t < stop; ++t) {
+			ret.insert(t);
+		}
+		return ret;
+	}
+
+	template <typename T>
+	static T get_set(const set<T>& vals, size_t pos) {
+		assert(pos < vals.size());
+		auto x = vals.begin();
+		size_t i = pos;
+		while (i > 0) {
+			++x;
+			--i;
+		}
+		return *x;
+	}
+
 protected:
 	Containers() {}
 	~Containers() {}

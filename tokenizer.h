@@ -192,6 +192,21 @@ public:
 				0, ss_out.str().length() - delimiter.length());
 	}
 
+	static string replace_first(const string& data, const string& find,
+			      const string& replacement) {
+		vector<string> pieces;
+		split_with_empty(data, find, &pieces);
+		if (pieces.size() < 2) return data;
+		stringstream ss;
+		ss << pieces[0];
+		ss << replacement;
+		ss << pieces[1];
+		for (int i = 2; i < pieces.size(); ++i) {
+		     ss << find << pieces[i];
+		}
+		return ss.str();
+	}
+
 	static string replace(const string& data, const string& find,
 			      const string& replacement) {
 		vector<string> pieces;

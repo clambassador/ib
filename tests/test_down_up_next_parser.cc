@@ -21,23 +21,41 @@ public:
 
 	virtual void add_children(vector<unique_ptr<testset>>* children) {
 		for (auto &x : *children) {
+			bool skip = false;
+                                for (auto &y : _children) {
+                                        if (*y.get() == *x.get()) skip = true;
+                                }
+                                if (skip) continue;
+
 			_children.push_back(unique_ptr<testset>(x.release()));
 		}
 	}
 
-	virtual void trace() {
-		if (_children.empty()) {
-			assert(!_me.empty());
-			cout << _me << ",";
-			return;
-		} else {
-			cout << "{";
-			for (auto &x : _children) {
-				x->trace();
-			}
-			cout << "},";
-		}
-	}
+                virtual string trace() const {
+                        if (_children.empty()) {
+                         //       assert(!_me.empty());
+                                return _me;
+                        } else {
+                                stringstream ss;
+                                ss << "{";
+				set<string> children;
+                                for (const auto &x : _children) {
+					string child = x->trace();
+					assert(!children.count(child));
+					children.insert(child);
+				}
+				for (const auto &x : children) {
+                                        ss << x << ",";
+                                }
+                                ss << "}";
+				return ss.str();
+                        }
+                }
+
+                virtual bool operator==(const testset& other) const {
+                        return trace() == other.trace();
+                }
+
 
 protected:
 	string _me;
@@ -60,6 +78,6 @@ int main(int argc, char** argv) {
 	vector<unique_ptr<testset>> out;
 	dup.parse(x, &out);
 	for (auto& y : out) {
-		y->trace();
+		cout << y->trace() << endl;
 	}
 }

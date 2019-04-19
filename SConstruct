@@ -17,6 +17,7 @@ tools['extract_all.cc'] = 'extract_all'
 tools['zcat.cc'] = 'zcat'
 tools['alt_base64.cc'] = 'alt_base64'
 tests = dict()
+tests['test_find_replace.cc'] = 'test_find_replace'
 tests['test_graph.cc'] = 'test_graph'
 tests['test_down_up_next_parser.cc'] = 'test_down_up_next_parser'
 tests['test_limiter.cc'] = 'test_limiter'
