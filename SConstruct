@@ -19,6 +19,7 @@ tools['alt_base64.cc'] = 'alt_base64'
 tests = dict()
 tests['test_find_replace.cc'] = 'test_find_replace'
 tests['test_graph.cc'] = 'test_graph'
+tests['test_fsm.cc'] = 'test_fsm'
 tests['test_down_up_next_parser.cc'] = 'test_down_up_next_parser'
 tests['test_limiter.cc'] = 'test_limiter'
 tests['test_marshalled.cc'] = 'test_marshalled'
