@@ -211,5 +211,12 @@ TODO: allow other symbols than percent to allow reading 5 from 5%
 	Logger::info("% -> %", test, Tokenizer::matching_brackets(test));
 	test = "a={hi'{}'there}";
 	Logger::info("% -> %", test, Tokenizer::matching_brackets(test));
+	vector<string> components;
+	vector<size_t> matchings;
+	s = "{a:{b:[1,2,3],c:{a:b,b:c}}}";
+	Tokenizer::match_pairs(s, &components, &matchings);
+	Logger::info("% %", components, matchings);
+
+
 
 }

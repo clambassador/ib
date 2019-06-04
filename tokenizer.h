@@ -15,6 +15,34 @@ namespace ib {
 
 class Tokenizer {
 public:
+	static bool match_pairs(const string& s,
+				vector<string>* components,
+				vector<size_t>* matchings) {
+		assert(matchings);
+		matchings->resize(s.length(), string::npos);
+		components->resize(s.length());
+		vector<pair<size_t, char>> stack;
+		for (size_t i = 0; i < s.length(); ++i) {
+			if (s[i] == '{' || s[i] == '[') { 
+				stack.push_back(make_pair(i, s[i]));
+			}
+			if (s[i] == '}' || s[i] == ']') {
+				if (stack.empty()) throw string("parse error: empty stack");
+				if ((stack.back().second == '{' && s[i] == ']') ||
+			            (stack.back().second == '[' && s[i] == '}')) {
+					throw string("parse error mismatch {}[]");
+				}
+				size_t start = stack.back().first;
+				(*matchings)[i] = start;
+				(*matchings)[start] = i;
+				(*components)[start] = s.substr(start, i - start + 1);
+				stack.pop_back();
+			}
+		}
+		if (stack.size()) throw string("parse error: end with stack");
+		return true;
+	}
+
 	template <typename... Args>
 	static vector<string> tokenize(const string& s,
 				       const Args&... rules) {
