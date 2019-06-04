@@ -63,6 +63,48 @@ public:
 		return rule;
 	}
 
+	static void matching_brackets(const string& s, char open, char close,
+				      vector<size_t>* out,
+				      bool allow_escape, bool mind_quote) {
+		vector<size_t> stack;
+		string quote;
+		assert(out->size() <= s.length());
+		while (out->size() != s.length()) out->push_back(string::npos);
+
+		if (mind_quote) {
+			annotate_quote(s, &quote);
+		} else {
+			quote = string('_', s.length());
+		}
+		for (size_t i = 0; i < s.length(); ++i) {
+			if (quote[i] == '_') {
+				if (s[i] == open) {
+					stack.push_back(i);
+				} else if (s[i] == close) {
+					if (stack.size()) {
+						size_t start = stack.back();
+						(*out)[start] = i;
+						(*out)[i] = start;
+						stack.pop_back();
+					}
+				}
+			}
+		}
+	}
+
+	static vector<size_t> matching_brackets(const string& s) {
+		return matching_brackets(s, false, true);
+	}
+
+	static vector<size_t> matching_brackets(const string& s, bool
+						allow_escape, bool mind_quote) {
+		vector<size_t> ret;
+		matching_brackets(s, '{', '}', &ret, allow_escape, mind_quote);
+		matching_brackets(s, '[', ']', &ret, allow_escape, mind_quote);
+		matching_brackets(s, '(', ')', &ret, allow_escape, mind_quote);
+		return ret;
+	}
+
 	static string longest_prefix(const vector<string>& vals) {
 		if (vals.empty()) return "";
 		if (vals.size() == 1) return vals[0];
@@ -244,6 +286,19 @@ public:
 		return ss.str();
 	}
 
+	static string trim(const string& str, const string& chars) {
+		set<char> skip;
+		for (auto &x : chars) {
+			skip.insert(x);
+		}
+                int s = 0;
+                int e = str.length() - 1;
+                while (skip.count(str[s])) ++s;
+		while (skip.count(str[e])) --e;
+                ++e;
+                return str.substr(s, e - s);
+        }
+
 	static string trim(const string& str) {
                 int s = 0;
                 int e = str.length() - 1;
@@ -376,8 +431,6 @@ public:
 		size_t pos = 0;
 		string quote;
 		annotate_quote(data, &quote);
-		cout << data << endl << quote << endl;
-
 		size_t start = pos;
 		while (true) {
 			pos = data.find(deliminator, pos);
@@ -438,7 +491,7 @@ public:
 			string tmp, result;
 			ret = extract("%" + format + "%", rest, nullptr,
 				      &result, &tmp);
-			if (ret == 3) results->push_back(result);
+			if (ret >= 2) results->push_back(result);
 			else break;
 			rest = tmp;
 		}

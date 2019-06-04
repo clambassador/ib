@@ -203,6 +203,13 @@ TODO: allow other symbols than percent to allow reading 5 from 5%
 	Logger::info("%", Tokenizer::tokenize("aa,bb,{{{{{}a",
 					      "a", "bb", "{}"));
 
-
+	string test = "(a(b))";
+	Logger::info("% -> %", test, Tokenizer::matching_brackets(test));
+	test = "{a{b(3)()()}}";
+	Logger::info("% -> %", test, Tokenizer::matching_brackets(test));
+	test = "}{";
+	Logger::info("% -> %", test, Tokenizer::matching_brackets(test));
+	test = "a={hi'{}'there}";
+	Logger::info("% -> %", test, Tokenizer::matching_brackets(test));
 
 }

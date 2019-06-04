@@ -42,6 +42,7 @@ tests['test_scanner.cc'] = 'test_scanner'
 tests['add_csv.cc'] = 'add_csv'
 tests['csv_to_xml.cc'] = 'csv_to_xml'
 tests['test_re.cc'] = 'test_re'
+tests['test_dupre.cc'] = 'test_dupre'
 
 libs = Split("""z
 	     """)
