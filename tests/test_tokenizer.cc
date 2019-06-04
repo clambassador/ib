@@ -203,6 +203,12 @@ TODO: allow other symbols than percent to allow reading 5 from 5%
 	Logger::info("%", Tokenizer::tokenize("aa,bb,{{{{{}a",
 					      "a", "bb", "{}"));
 
+	vector<string> components;
+	vector<size_t> matchings;
+	s = "{a:{b:[1,2,3],c:{a:b,b:c}}}";
+	Tokenizer::match_pairs(s, &components, &matchings);
+	Logger::info("% %", components, matchings);
+
 
 
 }
