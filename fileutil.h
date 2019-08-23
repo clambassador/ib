@@ -2,6 +2,7 @@
 #define __IB__FILEUTIL__H__
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #include <fstream>
@@ -201,6 +202,13 @@ public:
 			if (file[i] == '/') return file.substr(0, i);
 		}
 		return file;
+	}
+
+	static bool is_newer(const string& file1, const string& file2) {
+		struct stat result1, result2;
+		if (stat(file1.c_str(), &result1)) return false;
+		if (stat(file2.c_str(), &result2)) return true;
+		return result1.st_mtime > result2.st_mtime;
 	}
 
 	static string realpath(const string& path) {

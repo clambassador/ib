@@ -91,8 +91,12 @@ protected:
 };
 
 int main(int argc, char** argv) {
-	string s = "{a:b, bac:[0,1,2], lac:{b:boo, daq:[1,2,{b:b}], c:foo}}";
+	string s = "fair{a:b, bac:[0,1,2], lac:{b:boo, daq:[1,2,{b:b}],c:foo}}toggle{a:b}";
+	vector<string> r;
+	Tokenizer::extract_outer_paired("{", "}", s, &r);
+	Logger::info("%", r);
 	JSONMapper jm(s);
+
 	try {
 		jm.run();
 	} catch (string s) {

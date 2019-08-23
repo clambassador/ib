@@ -204,7 +204,7 @@ public:
 		if (pieces.size() < 2) return data;
 		stringstream ss;
 		ss << pieces[0];
-		for (int i = 1; i < pieces.size(); ++i) {
+		for (size_t i = 1; i < pieces.size(); ++i) {
 			if (pieces[i].length() < 2)
 				ss << delimiter << pieces[i];
 			else {
@@ -271,7 +271,7 @@ public:
 		ss << pieces[0];
 		ss << replacement;
 		ss << pieces[1];
-		for (int i = 2; i < pieces.size(); ++i) {
+		for (size_t i = 2; i < pieces.size(); ++i) {
 		     ss << find << pieces[i];
 		}
 		return ss.str();
@@ -284,7 +284,7 @@ public:
 		if (pieces.size() < 2) return data;
 		stringstream ss;
 		ss << pieces[0];
-		for (int i = 1; i < pieces.size(); ++i) {
+		for (size_t i = 1; i < pieces.size(); ++i) {
 		     ss << replacement << pieces[i];
 		}
 		return ss.str();
@@ -474,6 +474,32 @@ public:
 		}
 	}
 
+	static size_t extract_outer_paired(const string& left,
+					   const string& right,
+				  	   const string& data,
+					   vector<string>* results) {
+		assert(results);
+		assert(left != right);
+		size_t i = 0;
+		while (i < data.length() && data.substr(i, left.length()) != left) ++i;
+		if (i == data.length()) return results->size();
+		size_t start = i;
+		i += left.length();
+		int depth = 1;
+		while (i < data.length() && depth) {
+			if (data.substr(i, right.length()) == right) {
+				--depth;
+				i += right.length();
+			} else if (data.substr(i, left.length()) == left) {
+				++depth;
+				i += left.length();
+			} else ++i;
+		}
+		results->push_back(data.substr(start, i - start));
+		return extract_outer_paired(left, right, data.substr(i),
+					    results);
+	}
+
 	static size_t extract_all_paired(const string& left,
 					 const string& right,
 				  	 const string& data,
@@ -481,12 +507,12 @@ public:
 		assert(results);
 		assert(left != right);
 		int depth = 0;
-		for (int i = 0; i < data.length(); ++i) {
+		for (size_t i = 0; i < data.length(); ++i) {
 			if (data.substr(i, left.length()) == left) {
 				i += left.length();
 				assert(!depth);
 				depth = 1;
-				for (int j = i; j < data.length(); ++j) {
+				for (size_t j = i; j < data.length(); ++j) {
 					if (data.substr(j, left.length()) ==
 					    left) {
 						++depth;
@@ -495,6 +521,7 @@ public:
 						--depth;
 					}
 					if (!depth) {
+						assert(i <= j);
 						results->push_back(data.substr(
 							i, j - i));
 						break;
@@ -514,6 +541,7 @@ public:
 		assert(results);
 		int ret;
 		string rest = data;
+		assert(format.length());
 		assert(format.at(format.length() - 1) != '%');
 		while (true) {
 			string tmp, result;
@@ -571,7 +599,7 @@ public:
 
 	static size_t token_match(const string& data, const string& token,
 				  int pos) {
-		int whitepos = token.find_last_of("\4");
+		size_t whitepos = token.find_last_of("\4");
 		if (whitepos == string::npos)
 			return data.find(token, pos);
 		else if (whitepos == 0) {
@@ -584,7 +612,7 @@ public:
 			for (char c : whitespace) {
 				string testtoken = token;
 				testtoken[0] = c;
-				int candidate = data.find(testtoken, pos);
+				size_t candidate = data.find(testtoken, pos);
 				if (candidate < retval) retval = candidate;
 			}
 			return retval;
