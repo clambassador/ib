@@ -42,6 +42,7 @@ protected:
 				out->push_back(unique_ptr<T>(cur.release()));
 				cur.reset(new T());
 			} else if (token == "UP") {
+//				if (cur->dirty())
 				out->push_back(unique_ptr<T>(cur.release()));
 				cur.reset(new T());
 				return true;

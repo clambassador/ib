@@ -25,6 +25,15 @@ public:
 		return generate(_re);
 	}
 
+	virtual string describe() {
+		stringstream ss;
+		ss << "example words: " << endl;
+		for (size_t i = 0; i < 5; ++i) {
+		   ss << "\t" << generate() << endl;
+		}
+		return ss.str();
+	}
+
 	virtual vector<string> enumerate(size_t length) {
 		assert(length);
 		return enumerate(_re, length);
