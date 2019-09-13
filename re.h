@@ -27,9 +27,17 @@ public:
 
 	virtual string describe() {
 		stringstream ss;
+
+		ss << "with more parenthesis: " << tidy(_re) << endl;
+		ss << "shortest word: " << min_string(_re) << endl;
+		ss << "shortest word length: " << min_length(_re) << endl;
 		ss << "example words: " << endl;
-		for (size_t i = 0; i < 5; ++i) {
-		   ss << "\t" << generate() << endl;
+		set<string> words;
+		for (size_t i = 0; i < 50; ++i) {
+			words.insert(generate());
+		}
+		for (auto &x : words) {
+			ss << "- " << x << endl;
 		}
 		return ss.str();
 	}
