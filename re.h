@@ -17,6 +17,7 @@ public:
 	RE() {}
 
 	RE(const string& re) : _re(re) {
+		_re = tidy(_re);
 	}
 
 	virtual ~RE() {}
@@ -28,7 +29,7 @@ public:
 	virtual string describe() {
 		stringstream ss;
 
-		ss << "with more parenthesis: " << tidy(_re) << endl;
+		ss << "with more parenthesis: " << _re << endl;
 		ss << "shortest word: " << min_string(_re) << endl;
 		ss << "shortest word length: " << min_length(_re) << endl;
 		ss << "example words: " << endl;
@@ -80,22 +81,53 @@ public:
 	}
 
 	static string tidy(const string& re) {
-		string seed = re;
+		string seed = Tokenizer::trimout(re, " ");
 		for (size_t i = 0; i < seed.length(); ++i) {
+			if (seed[i] == '*') {
+				stringstream ss;
+				string left = get_left(seed, i);
+				if (!parened(left)) {
+					ss << seed.substr(0, i - left.length())
+					   << "(" << left << ")*"
+					   << seed.substr(i + 1);
+					seed = ss.str();
+					i += 2;
+				}
+			}
+		}
+		for (size_t i = 0; i < seed.length(); ++i) {
+
 			if (seed[i] == '+') {
 				string left = get_left(seed, i);
 				string right = get_right(seed, i);
 				stringstream ss;
-	                        ss << seed.substr(0, i - left.length())
-				   << "(" << left << ")"
-				   << "+"
-				   << "(" << right << ")"
-		                   << seed.substr(i + right.length() + 1);
+	                        ss << seed.substr(0, i - left.length());
+				int add = 0;
+				if (!parened(left)) {
+					add = 2;
+					ss << "(" << left << ")";
+				} else {
+					ss << left;
+				}
+				ss << "+";
+				if (!parened(right)) {
+					ss << "(" << right << ")";
+				} else {
+					ss << right;
+				}
+		                ss << seed.substr(i + right.length() + 1);
 				seed = ss.str();
-				i += 2;
+				i += add;
 			}
 		}
 		return seed;
+	}
+
+	static bool parened(const string& s) {
+		if (s.size() < 2) return false;
+		if (s[0] != '(') return false;
+		if (s[s.size() - 1] != ')') return false;
+		return true;
 	}
 
 	static string generate(const string& re) {
@@ -234,13 +266,13 @@ public:
 		int count = 0;
 		size_t move = pos + 1;
 		assert(re[pos] == '+');
-		while (move <= re.size()) {
+		while (move < re.length()) {
 			if (re[move] == '(') ++count;
 			if (re[move] == ')') --count;
-			++move;
 			if (!count) break;
+			++move;
 		}
-		while (move < re.length() && re[move] == '*') ++move;
+		while (move + 1 < re.length() && re[move + 1] == '*') ++move;
 		assert(move > pos);
 		return re.substr(pos + 1, move - pos);
 	}

@@ -6,7 +6,13 @@
 using namespace std;
 using namespace ib;
 
-int main() {
+int main(int argc, char** argv) {
+	if (argc == 2) {
+		RE r(argv[1]);
+		cout << r.describe();
+		cout << endl;
+		return 0;
+	}
 	Logger::info("a+b* 3 %", RE::get_left("a+b*", 3));
 	Logger::info("a+b* 1 %", RE::get_left("a+b*", 1));
 	Logger::info("a+b* 1 %", RE::get_right("a+b*", 1));
