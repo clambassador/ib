@@ -64,6 +64,7 @@ public:
 		write_input(input);
 	}
 
+protected:
 	void connect(const string& cmd) {
 		_argvs.push_back(vector<string>());
 		_pipes.push_back(nullptr);
@@ -74,9 +75,8 @@ public:
 		}
 	}
 
-protected:
 	pid_t execute(size_t pos) {
-		const char& c= _argvs[pos][0][0];
+		const char& c = _argvs[pos][0][0];
 		if (c != '/' && c != '~' && c != '.') {
 			Run run("/bin/which " + _argvs[pos][0]);
 			run();
@@ -87,33 +87,39 @@ protected:
 			}
 			_argvs[pos][0] = s.substr(0, s.length() - 1);
 		}
-		// Logger::info("(ib::run) calling: %", _argvs[pos]);
-
 		pid_t pid = fork();
 		if (pid == -1) {
 			throw string("fork(): failed");
 		}
 		if (pid == 0) {
 			char** argv = get_c_args(pos);
-			_pipes[pos]->set_read();
-			dup2(_pipes[pos]->read_end, STDIN_FILENO);
+			int r = dup2(_pipes[pos]->read_end, STDIN_FILENO);
+			close(_pipes[pos]->read_end);
+			if (r == -1) {
+				Logger::error("dup failed: %", errno);
+				exit(-1);
+			}
 			// TODO: decide what to do with STDERR_FILENO
-			_pipes[pos + 1]->set_write();
 			dup2(_pipes[pos + 1]->write_end, STDOUT_FILENO);
+			close(_pipes[pos + 1]->write_end);
+			if (r == -1) {
+				Logger::error("dup failed: %", errno);
+				exit(-1);
+			}
 			execv(argv[0], (char * const *) argv);
 			if (errno == 2) {
-				Logger::error("execv failed. did you give a full path to executable?");
+				Logger::error("execv failed for %. did you give a full path to executable?",
+					      argv[0]);
 			} else {
 				Logger::error("execv failed: %", errno);
 			}
 			_pipes[pos]->close();
 			_pipes[pos + 1]->close();
 			char** p = argv;
-			while (!*p++) free(*p);
-			free(argv);
+			while (!*p++) delete[](*p);
+			delete[] argv;
 			exit(-1);
 		}
-		_pipes[pos]->close();
 		return pid;
 
 	}
@@ -160,8 +166,9 @@ public:
 		while (true) {
 			r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) {
-				waitpid(_pids[pid_pos++], &_status, 0);
 				if (pid_pos == _pids.size()) break;
+				waitpid(_pids[pid_pos++], &_status, 0);
+				continue;
 			}
 			if (r < 0) {
 				Logger::error("read failed: % %", r, errno);
@@ -169,6 +176,7 @@ public:
 			}
 			fout.write(buf, r);
 		}
+		while (pid_pos < _pids.size()) waitpid(_pids[pid_pos++], &_status, 0);
 		return 0;
 	}
 
@@ -190,17 +198,22 @@ public:
 		thread kill_thread(bind(&Run::abort_run, this, runtime));
 		int r = 0;
 		while (true) {
+
 			r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) {
-				waitpid(_pids[pid_pos++], &_status, 0);
 				if (pid_pos == _pids.size()) break;
+				waitpid(_pids[pid_pos++], &_status, 0);
+				continue;
 			}
 			if (r < 0) {
 				Logger::error("read failed % %", r, errno);
+				_done = true;
+				kill_thread.join();
 				return "";
 			}
 			ss.write(buf, r);
 		}
+		while (pid_pos < _pids.size()) waitpid(_pids[pid_pos++], &_status, 0);
 		_done = true;
 		kill_thread.join();
 		return ss.str();
@@ -220,7 +233,6 @@ protected:
 			strncpy(retval[i], _argvs[pos][i].c_str(),
 			       _argvs[pos][i].length());
 			retval[i][_argvs[pos][i].length()] = 0;
-			cout << retval[i] << endl;
 		}
 		retval[_argvs[pos].size()] = nullptr;
 		return retval;

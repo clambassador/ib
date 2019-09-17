@@ -61,6 +61,7 @@ public:
 				    const string& end_state) {
 		assert(has_state(start_state));
 		assert(has_state(end_state));
+		// TODO: NFA support here
 		_delta[start_state][symbol] = end_state;
 	}
 
