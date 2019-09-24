@@ -28,16 +28,31 @@ public:
 	virtual void init(const vector<string>& rules) {
 		for (auto &rule : rules) {
 			if (rule.empty()) continue;
+			Logger::info("%", rule);
 			string start_state, end_state, symbol;
-			if (3 != Tokenizer::extract("%,% -> %", rule,
+			if (3 == Tokenizer::extract("%,% -> %", rule,
 						    &start_state, &symbol,
 						    &end_state)) {
-				Logger::error("could not parse %", rule);
+				start_state = Tokenizer::trim(start_state);
+				symbol = Tokenizer::trim(symbol);
+				end_state = Tokenizer::trim(end_state);
+				add_state(start_state);
+				add_state(end_state);
+				add_transition(start_state, symbol, end_state);
+			} else if (1 == Tokenizer::extract("START %", rule,
+							   &start_state)) {
+				_start_state = Tokenizer::trim(start_state);
+			} else if (1 == Tokenizer::extract("ACCEPT %", rule,
+							   &start_state)) {
+				set_accept(Tokenizer::trim(start_state));
+				set_accept(start_state);
+			} else {
 				continue;
 			}
-			add_state(start_state);
-			add_state(end_state);
-			add_transition(start_state, symbol, end_state);
+
+		}
+		for (auto & x : _states) {
+			if (!_accept.count(x)) set_reject(x);
 		}
 		reset();
 	}
@@ -49,7 +64,9 @@ public:
 	}
 
 	virtual void reset() {
-		_cur_state = "START";
+		_cur_states.clear();
+		_cur_states.insert(_start_state);
+		_cur_states = with_epsilon_moves(_cur_states);
 	}
 
 	virtual bool has_state(const string& state) const {
@@ -61,47 +78,72 @@ public:
 				    const string& end_state) {
 		assert(has_state(start_state));
 		assert(has_state(end_state));
-		// TODO: NFA support here
-		_delta[start_state][symbol] = end_state;
+		_delta[start_state][symbol].insert(end_state);
 	}
 
 	virtual bool is_error() const {
-		return _cur_state.empty();
+		return _cur_states.empty();
 	}
 
-	virtual string process(const string& symbol) {
-		string retval = process(_cur_state, symbol);
-		_cur_state = retval;
+	virtual set<string> with_epsilon_moves(const set<string>& states) {
+		set<string> retval = states;
+		for (auto &x : process(states, "epsilon")) {
+			retval.insert(x);
+		}
 		return retval;
 	}
 
-	virtual string process(const string& cur_state, const string& symbol) {
-		if (is_error()) return cur_state;
+	virtual set<string> with_epsilon_moves(const string& state) {
+		set<string> retval = process(state, "epsilon");
+		retval.insert(state);
+		return retval;
+	}
+
+	virtual set<string> process(const string& symbol) {
+		_cur_states = process(_cur_states, symbol);
+		return _cur_states;
+	}
+
+	virtual set<string> process(const set<string>& states, const string& symbol) {
+		set<string> retval;
+		for (auto &x : states) {
+			set<string> result = process(x, symbol);
+			for (const auto &y : result) {
+				retval.insert(y);
+			}
+		}
+		if (symbol != "epsilon") retval = with_epsilon_moves(retval);
+		return retval;
+	}
+
+	virtual set<string> process(const string& cur_state, const string& symbol) {
 		if (!_states.count(cur_state)) {
-			throw string("no state " + cur_state);
+			return set<string>();
 		}
 		return _delta[cur_state][symbol];
 	}
 
-	virtual void trace(const vector<string>& symbols, vector<string>* out) {
-		return trace("START", symbols, out);
+	virtual void trace(const vector<string>& symbols, vector<set<string>>* out) {
+		trace("START", symbols, out);
 	}
 
 	virtual void trace(const string& state, const vector<string>& symbols,
-			   vector<string>* out) {
-		string cur_state = state;
-		out->push_back(state);
+			   vector<set<string>>* out) {
+		set<string> cur_states;
+		cur_states.insert(state);
+		out->push_back(with_epsilon_moves(state));
 		for (auto &x : symbols) {
 			out->push_back(process(out->back(), x));
 		}
 	}
 
 	virtual void state(const string& state) {
-		_cur_state = state;
+		_cur_states.clear();
+		_cur_states.insert(state);
 	}
 
-	virtual string state() const {
-		return _cur_state;
+	virtual set<string> state() const {
+		return _cur_states;
 	}
 
 	virtual void set_accept(const string& state) {
@@ -113,9 +155,10 @@ public:
 	}
 
 protected:
-	string _cur_state;
+	string _start_state;
+	set<string> _cur_states;
 	set<string> _states;
-	map<string, map<string, string>> _delta;
+	map<string, map<string, set<string>>> _delta;
 	set<string> _accept;
 	set<string> _reject;
 

@@ -18,6 +18,7 @@ tools['zcat.cc'] = 'zcat'
 tools['alt_base64.cc'] = 'alt_base64'
 tools['json.cc'] = 'json'
 tools['is_newer.cc'] = 'is_newer'
+tools['fsm.cc'] = 'fsm'
 tests = dict()
 tests['test_find_replace.cc'] = 'test_find_replace'
 tests['test_graph.cc'] = 'test_graph'

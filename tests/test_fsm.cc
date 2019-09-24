@@ -15,6 +15,7 @@ int main() {
 	rules.push_back("AS,a -> AS");
 	rules.push_back("AS,b -> BS");
 	rules.push_back("BS,b -> BS");
+	rules.push_back("START START");
 	FSM fsm(rules);
 	fsm.set_accept("BS");
 
@@ -34,6 +35,9 @@ int main() {
 			Logger::info("state after % is %",
 				     y, fsm.process(y));
 		}
-		assert(fsm.state() == x.second);
+		if (!x.second.empty()) {
+			assert(fsm.state().count(x.second));
+			assert(fsm.state().size() == 1);
+		}
 	}
 }
