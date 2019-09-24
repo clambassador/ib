@@ -30,7 +30,19 @@ public:
 			if (rule.empty()) continue;
 			Logger::info("%", rule);
 			string start_state, end_state, symbol;
-			if (3 == Tokenizer::extract("%,% -> %", rule,
+			if (3 == Tokenizer::extract("{%},% -> {%}", rule,
+						    &start_state, &symbol,
+						    &end_state)) {
+				start_state = "{" + Tokenizer::trim(start_state)
+				    + "}";
+				symbol = Tokenizer::trim(symbol);
+				add_symbol(symbol);
+				end_state = "{" + Tokenizer::trim(end_state) +
+				    "}";
+				add_state(start_state);
+				add_state(end_state);
+				add_transition(start_state, symbol, end_state);
+			} else if (3 == Tokenizer::extract("%,% -> %", rule,
 						    &start_state, &symbol,
 						    &end_state)) {
 				start_state = Tokenizer::trim(start_state);
@@ -160,13 +172,12 @@ public:
 	}
 
 	virtual string subset_construction() {
-		map<set<string>, map<string, set<string>>> result;
 		stringstream ss;
 		stringstream ss_accept;
 		vector<set<string>> q;
 		set<set<string>> considered;
 		q.push_back(with_epsilon_moves(_start_state));
-		ss << "START " << as_state(q.back()) << endl;
+		ss << "START " << as_state(q.back()) << endl << endl;
 		while (!q.empty()) {
 			set<string> state = q.back();
 			considered.insert(state);
@@ -184,11 +195,12 @@ public:
 				   << " -> " << as_state(next) << endl;
 			}
 		}
+		ss << endl;
 		ss << ss_accept.str();
 		return ss.str();
 	}
 
-	virtual string as_state(const set<string>& state) {
+	static string as_state(const set<string>& state) {
 		stringstream ss;
 		ss << "{";
 

@@ -23,7 +23,12 @@ int main(int argc, char** argv) {
 	for (size_t i = 0; i < w.length(); ++i) {
 		fsm.process(w.substr(i, 1));
 	}
-	Logger::info("state of machine after %: %", w, fsm.state());
+	Logger::info("state of machine after %: %", w,
+		     FSM::as_state(fsm.state()));
+	Logger::info("% is %", w, fsm.is_accept(fsm.state()) ? "accepted" :
+		     "rejected");
+
+
 
 	Logger::info("");
 	Logger::info("");
