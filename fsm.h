@@ -35,6 +35,7 @@ public:
 						    &end_state)) {
 				start_state = Tokenizer::trim(start_state);
 				symbol = Tokenizer::trim(symbol);
+				add_symbol(symbol);
 				end_state = Tokenizer::trim(end_state);
 				add_state(start_state);
 				add_state(end_state);
@@ -154,6 +155,59 @@ public:
 		_reject.insert(state);
 	}
 
+	virtual void add_symbol(const string& symbol) {
+		_symbols.insert(symbol);
+	}
+
+	virtual string subset_construction() {
+		map<set<string>, map<string, set<string>>> result;
+		stringstream ss;
+		stringstream ss_accept;
+		vector<set<string>> q;
+		set<set<string>> considered;
+		q.push_back(with_epsilon_moves(_start_state));
+		ss << "START " << as_state(q.back()) << endl;
+		while (!q.empty()) {
+			set<string> state = q.back();
+			considered.insert(state);
+			q.pop_back();
+			if (is_accept(state))
+				ss_accept << "ACCEPT " << as_state(state) << endl;
+			for (auto &x : _symbols) {
+				if (x == "epsilon") continue;
+				set<string> next = process(state, x);
+				if (!considered.count(next)) {
+					considered.insert(next);
+					q.push_back(next);
+				}
+				ss << as_state(state) << "," << x
+				   << " -> " << as_state(next) << endl;
+			}
+		}
+		ss << ss_accept.str();
+		return ss.str();
+	}
+
+	virtual string as_state(const set<string>& state) {
+		stringstream ss;
+		ss << "{";
+
+		for (auto x = state.begin(); x != state.end();) {
+			ss << *x;
+			++x;
+			if (x != state.end()) ss << ",";
+		}
+		ss << "}";
+		return ss.str();
+	}
+
+	virtual bool is_accept(set<string> state) {
+		for (auto &x : state) {
+			if (_accept.count(x)) return true;
+		}
+		return false;
+	}
+
 protected:
 	string _start_state;
 	set<string> _cur_states;
@@ -161,6 +215,7 @@ protected:
 	map<string, map<string, set<string>>> _delta;
 	set<string> _accept;
 	set<string> _reject;
+	set<string> _symbols;
 
 };
 

@@ -24,4 +24,8 @@ int main(int argc, char** argv) {
 		fsm.process(w.substr(i, 1));
 	}
 	Logger::info("state of machine after %: %", w, fsm.state());
+
+	Logger::info("");
+	Logger::info("");
+	Logger::info("subset construction is:\n%", fsm.subset_construction());
 }
