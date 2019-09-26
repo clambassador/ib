@@ -40,6 +40,17 @@ public:
 		return 0;
 	}
 
+        static int make_path(const string& file_name) {
+               if (file_name.empty()) return -1;
+               size_t pos = 0;
+               while (true) {
+                       pos = file_name.find("/", pos + 1);
+                       if (pos == string::npos) break;
+                       mkdir(file_name.substr(0, pos).c_str(), S_IRWXU);
+               }
+               return 0;
+        }
+
 	static int write_new_file(const string& file_name,
 				  const string& data) {
 		if (file_name.empty()) return -1;
