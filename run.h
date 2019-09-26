@@ -70,7 +70,7 @@ protected:
 		_pipes.push_back(nullptr);
 		_pipes.back().reset(new PipePair());
 		Tokenizer::split_mind_quote(cmd, " ", &_argvs.back());
-		for (size_t i = 0; i < _argvs.size(); ++i) {
+		for (size_t i = 0; i < _argvs.back().size(); ++i) {
 			_argvs.back()[i] = Tokenizer::collapse_quote(_argvs.back()[i]);
 		}
 	}

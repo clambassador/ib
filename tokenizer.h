@@ -154,6 +154,7 @@ public:
 		int in_quote = 0;
 		char chr[2] = {'_', '\''};
 		size_t i = 0;
+
 		annotated->resize(data.length());
 		while (i < data.length()) {
 			if (data[i] == '\\') {
