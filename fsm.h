@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "ib/containers.h"
 #include "ib/tokenizer.h"
 
 using namespace std;
@@ -54,8 +55,11 @@ public:
 				add_transition(start_state, symbol, end_state);
 			} else if (1 == Tokenizer::extract("START %", rule,
 							   &start_state)) {
+				if (!_start_state.empty()) {
+					throw string("start state multiply defined");
+				}
 				_start_state = Tokenizer::trim(start_state);
-			} else if (1 == Tokenizer::extract("ACCEPT %", rule,
+			} else if (1 == Tokenizer::extract("FINAL %", rule,
 							   &start_state)) {
 				set_accept(Tokenizer::trim(start_state));
 				set_accept(start_state);
@@ -136,8 +140,18 @@ public:
 		return _delta[cur_state][symbol];
 	}
 
+	virtual set<string> process(const string& cur_state,
+				    const vector<string>& symbols) {
+		set<string> state;
+		state.insert(cur_state);
+		for (size_t i = 0; i < symbols.size(); ++i) {
+			state = process(state, symbols[i]);
+		}
+		return state;
+	}
+
 	virtual void trace(const vector<string>& symbols, vector<set<string>>* out) {
-		trace("START", symbols, out);
+		trace(_start_state, symbols, out);
 	}
 
 	virtual void trace(const string& state, const vector<string>& symbols,
@@ -153,6 +167,17 @@ public:
 	virtual void state(const string& state) {
 		_cur_states.clear();
 		_cur_states.insert(state);
+	}
+
+	virtual bool is_deterministic() {
+		for (auto &x : _delta) {
+			for (auto &a : _symbols) {
+				if (a == "epsilon") continue;
+				if (!x.second.count(a)) return false;
+				if (x.second[a].size() != 1) return false;
+			}
+		}
+		return true;
 	}
 
 	virtual set<string> state() const {
@@ -213,11 +238,31 @@ public:
 		return ss.str();
 	}
 
+	virtual bool is_symbol(const string& symbol) {
+		if (_symbols.count(symbol) && symbol != "epsilon") return true;
+		return false;
+	}
+
 	virtual bool is_accept(set<string> state) {
 		for (auto &x : state) {
 			if (_accept.count(x)) return true;
 		}
 		return false;
+	}
+
+	virtual bool accepts(const vector<string>& symbols) {
+		return is_accept(process(_start_state, symbols));
+	}
+
+	virtual vector<string> random_word() {
+		vector<string> word;
+		while (true) {
+			int pos = rand() % (_symbols.size() + 1);
+			if (pos == _symbols.size()) return word;
+			string symbol = Containers::get_set(_symbols, pos);
+			if (symbol == "epsilon") continue;
+			word.push_back(symbol);
+		}
 	}
 
 protected:
