@@ -198,6 +198,13 @@ public:
 	}
 
 	template<typename T, typename R>
+	static string stringify(const pair<T, R>& val) {
+		stringstream ss;
+		ss << "(" << val.first << ", " << val.second << ")";
+		return ss.str();
+	}
+
+	template<typename T, typename R>
 	static string stringify(const unordered_map<T, R>& val) {
 		stringstream ss;
 		ss << "{ ";

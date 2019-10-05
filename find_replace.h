@@ -34,6 +34,41 @@ public:
 		return retval;
 	}
 
+	static bool is_cfg(const string& grammar) {
+		return is_cfg(parse(grammar));
+	}
+
+	static bool is_cfg(const vector<pair<string, string>>& grammar) {
+		for (const auto &x : grammar) {
+			if (x.first.length() != 1) return false;
+		}
+		return true;
+	}
+
+	static bool is_cnf(const string& grammar) {
+		return is_cnf(parse(grammar));
+	}
+
+	static bool is_cnf(const vector<pair<string, string>>& grammar) {
+		set<string> nonterminals;
+		for (const auto &x : grammar) {
+			nonterminals.insert(x.first);
+		}
+		for (const auto &x : grammar) {
+			if (x.first.length() != 1) return false;
+			if (x.second.length() == 2) {
+				if (!nonterminals.count(x.second.substr(0,1))) return false;
+				if (!nonterminals.count(x.second.substr(0,1))) return false;
+			} else if (x.second.length() == 1) {
+				if (nonterminals.count(x.second)) return false;
+			} else if (!x.second.length() && x.first != "S") return false;
+			else {
+				if (x.first != "S" || x.second != "epsilon") return false;
+			}
+		}
+		return true;
+	}
+
 	static vector<pair<string, string>> parse(const string& grammar) {
 		vector<pair<string, string>> retval;
 		vector<string> lines;
@@ -41,7 +76,13 @@ public:
 		for (auto &x : lines) {
 			string left, right;
 			if (Tokenizer::extract("% -> %", x, &left, &right) == 2) {
-				retval.push_back(make_pair(left, right));
+				vector<string> pieces;
+				Tokenizer::split_with_empty(right, "|", &pieces);
+				for (auto &x : pieces) {
+					retval.push_back(make_pair(
+						Tokenizer::trim(left),
+						Tokenizer::trim(x)));
+				}
 			}
 		}
 		return retval;
