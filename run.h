@@ -30,6 +30,8 @@ class Run {
 		void close() {
 			if (read_end) ::close(read_end);
 			if (write_end) ::close(write_end);
+			read_end = 0;
+			write_end = 0;
 		}
 		void set_write() {
 			::close(read_end);
@@ -75,6 +77,7 @@ protected:
 		}
 	}
 
+protected:
 	pid_t execute(size_t pos) {
 		const char& c = _argvs[pos][0][0];
 		if (c != '/' && c != '~' && c != '.') {
@@ -93,15 +96,17 @@ protected:
 		}
 		if (pid == 0) {
 			char** argv = get_c_args(pos);
+			_pipes[pos]->set_read();
 			int r = dup2(_pipes[pos]->read_end, STDIN_FILENO);
-			close(_pipes[pos]->read_end);
+//			close(_pipes[pos]->read_end);
 			if (r == -1) {
 				Logger::error("dup failed: %", errno);
 				exit(-1);
 			}
 			// TODO: decide what to do with STDERR_FILENO
+			_pipes[pos + 1]->set_write();
 			dup2(_pipes[pos + 1]->write_end, STDOUT_FILENO);
-			close(_pipes[pos + 1]->write_end);
+//			close(_pipes[pos + 1]->write_end);
 			if (r == -1) {
 				Logger::error("dup failed: %", errno);
 				exit(-1);
@@ -120,6 +125,7 @@ protected:
 			delete[] argv;
 			exit(-1);
 		}
+//		_pipes[pos]->close();
 		return pid;
 
 	}
@@ -142,9 +148,10 @@ public:
 		assert(!_started);
 		_started = true;
 		size_t pos = 0;
-		_pipes.front()->set_write();
+	//	_pipes.front()->set_write();
 		while (pos != _argvs.size()) {
 			_pids.push_back(execute(pos));
+			_pipes[pos]->close();
 			++pos;
 		}
 		_pipes.back()->set_read();
@@ -197,8 +204,8 @@ public:
 		_done = false;
 		thread kill_thread(bind(&Run::abort_run, this, runtime));
 		int r = 0;
+		_pipes.front()->close();
 		while (true) {
-
 			r = ::read(_pipes.back()->read_end, buf, SIZE);
 			if (r == 0) {
 				if (pid_pos == _pids.size()) break;
@@ -221,8 +228,14 @@ public:
 
 protected:
 	void write_input(const string& data) {
-		int r = ::write(_pipes.front()->write_end, data.c_str(), data.length());
-		if (r != data.length()) throw string("write(): failed.");
+		size_t todo = data.length();
+		while (todo) {
+			int r = ::write(_pipes.front()->write_end, data.c_str(), data.length());
+			if (r < 0) throw string("write(): failed.");
+			size_t written = (size_t) r;
+			if (written == 0) throw string("write(): failed.");
+			todo -= written;
+		}
 	}
 
 	char** get_c_args(int pos) {

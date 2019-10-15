@@ -15,6 +15,11 @@ int main() {
 	Logger::info("result: %", run.redirect("/tmp/garbage"));
 	}
 	{
+	Run run("grep a", "a\nb\nc\na");
+	run();
+	Logger::info("result: %", run.read());
+	}
+	{
 	Run run("cat /tmp/garbage");
 	run();
 	Logger::info("result: %", run.read());
