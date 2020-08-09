@@ -3,7 +3,9 @@
 
 #include <cassert>
 #include <cstdint>
+#include <cstring>
 #include <chrono>
+#include <regex>
 #include <thread>
 #include <vector>
 
@@ -15,15 +17,52 @@ namespace ib {
 
 class Tokenizer {
 public:
+	static void printable_segments(const string& s,
+				       vector<string>* out) {
+		assert(out);
+		size_t pos = 0;
+		while (pos < s.length()) {
+			while (pos < s.length() && !isprint(s[pos])) ++pos;
+			if (pos == s.length()) break;
+			size_t start = pos;
+			while (pos < s.length() && isprint(s[pos])) ++pos;
+			out->emplace_back(s.substr(start, pos - start));
+		}
+	}
+
+	static string get_token(const string& s,
+				size_t pos,
+				const string& end) {
+		set<char> terms;
+		size_t cur = pos;
+		for (auto &x : end) terms.insert(x);
+		while (++cur != s.length()) {
+			if (terms.count(s.at(cur))) {
+				return s.substr(pos, cur - pos);
+			}
+		}
+		return s.substr(pos);
+	}
+
 	static bool match_pairs(const string& s,
 				vector<string>* components,
 				vector<size_t>* matchings) {
+		return match_pairs(s, components, matchings, false);
+	}
+
+	static bool match_pairs(const string& s,
+				vector<string>* components,
+				vector<size_t>* matchings,
+				bool mind_quote) {
 		assert(matchings);
 		matchings->resize(s.length(), string::npos);
 		components->resize(s.length());
 		vector<pair<size_t, char>> stack;
+		string annotated;
+		if (mind_quote) annotate_quote(s, &annotated);
 		for (size_t i = 0; i < s.length(); ++i) {
-			if (s[i] == '{' || s[i] == '[') { 
+			if (mind_quote && annotated[i] != '_') continue;
+			if (s[i] == '{' || s[i] == '[') {
 				stack.push_back(make_pair(i, s[i]));
 			}
 			if (s[i] == '}' || s[i] == ']') {
@@ -481,24 +520,33 @@ public:
 					   vector<string>* results) {
 		assert(results);
 		assert(left != right);
-		size_t i = 0;
-		while (i < data.length() && data.substr(i, left.length()) != left) ++i;
-		if (i == data.length()) return results->size();
-		size_t start = i;
-		i += left.length();
-		int depth = 1;
-		while (i < data.length() && depth) {
-			if (data.substr(i, right.length()) == right) {
-				--depth;
-				i += right.length();
-			} else if (data.substr(i, left.length()) == left) {
-				++depth;
-				i += left.length();
-			} else ++i;
+		size_t curpos = 0;
+
+		while (curpos < data.size()) {
+			curpos = data.find(left, curpos);
+			if (curpos == string::npos) return results->size();
+
+			int depth = 1;
+			size_t start = curpos++;
+			while (curpos < data.length() && depth) {
+	                        if (substreq(data, curpos, right)) {
+        	                        --depth;
+                	                curpos += right.length();
+	                        } else if (substreq(data, curpos, left)) {
+        	                        ++depth;
+                	                curpos += left.length();
+	                        } else ++curpos;
+			}
+			if (depth) return results->size();
+			results->push_back(data.substr(start, curpos - start));
 		}
-		results->push_back(data.substr(start, i - start));
-		return extract_outer_paired(left, right, data.substr(i),
-					    results);
+		return results->size();
+	}
+
+	static bool substreq(const string& main, size_t pos,
+			     const string& search) {
+		return !strncmp(main.c_str() + pos, search.c_str(),
+				search.length());
 	}
 
 	static size_t extract_all_paired(const string& left,
@@ -509,16 +557,14 @@ public:
 		assert(left != right);
 		int depth = 0;
 		for (size_t i = 0; i < data.length(); ++i) {
-			if (data.substr(i, left.length()) == left) {
+			if (substreq(data, i, left)) {
 				i += left.length();
 				assert(!depth);
 				depth = 1;
 				for (size_t j = i; j < data.length(); ++j) {
-					if (data.substr(j, left.length()) ==
-					    left) {
+					if (substreq(data, j, left)) {
 						++depth;
-					} else if (data.substr(j, right.length())
-						   == right) {
+					} else if (substreq(data, j, right)) {
 						--depth;
 					}
 					if (!depth) {
@@ -534,6 +580,26 @@ public:
 			}
 		}
 		return results->size();
+	}
+
+	/* re_extract_all takes a regexp re, a string data,
+	   and a position pos. It does a match all of the data using
+	   re and puts the pos match into queries each go. 0th is full match,
+	   1st is first parenthetic subexp, etc.
+	 */
+	static size_t re_extract_all(const regex& re,
+				     const string& data,
+				     size_t pos,
+				     vector<string>* queries) {
+		assert(queries);
+		sregex_iterator it = sregex_iterator(
+		    data.begin(), data.end(), re);
+		while (it != sregex_iterator()) {
+			assert(pos < it->size());
+			queries->push_back(it->str(pos));
+			++it;
+		}
+		return queries->size();
 	}
 
 	static size_t extract_all(const string& format,
@@ -656,11 +722,9 @@ public:
 				      data, tokens, cnt);
 		}
 		assert(tokens->size());
-		if (!check_token_match(
+		assert(check_token_match(
 			data.substr(pos_data, token.length()),
-			format.substr(pos_format, token.length()))) {
-			return cnt;
-		}
+			format.substr(pos_format, token.length())));
 		pos_format += token.length();
 		pos_data += token.length();
 
@@ -704,8 +768,11 @@ public:
 				   size_t pos_data, const string& data,
 				   list<string>* tokens, int cnt) {
 		assert(tokens->size() == 1);
-		if (tokens->empty()) return data.length();
-		assert(data.substr(pos_data) == tokens->front());
+		if (data.substr(pos_data) != tokens->front()) {
+			Logger::info("extract failed: % % % % %", format, data,
+				     *tokens, pos_data, data.length());
+			assert(0);
+		}
 		assert(format.substr(pos_format) == tokens->front());
 		return cnt;
 	}

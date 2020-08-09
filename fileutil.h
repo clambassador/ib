@@ -18,6 +18,19 @@ namespace ib {
 
 class Fileutil {
 public:
+	static void read_stream(istream& in, string* s) {
+		stringstream ss;
+		while (true) {
+			string line;
+			getline(in, line);
+			ss << line;
+			if (!in.good()) {
+				*s = ss.str();
+				return;
+			}
+		}
+	}
+
 	static vector<string> read_stream(istream& in) {
 		vector<string> retval;
 		while (true) {
@@ -55,6 +68,11 @@ public:
 				  const string& data) {
 		if (file_name.empty()) return -1;
 		if (exists(file_name)) return -1;
+		return write_file(file_name, data);
+	}
+
+	static int write_file(const string& file_name,
+			      const string& data) {
 		ofstream fout(file_name);
 		if (!fout.good()) return -1;
 		fout << data;

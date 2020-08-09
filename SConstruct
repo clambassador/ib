@@ -7,12 +7,16 @@ common = Split("""config.cc
 		  fileutil.cc
 	       """)
 tools = dict()
+tools['latexify_images.cc'] = 'latexify_images'
 tools['xor_pref.cc'] = 'xor_pref'
 tools['xor.cc'] = 'xor'
+tools['unmask.cc'] = 'unmask'
 tools['slidemask.cc'] = 'slidemask'
 tools['csv_join.cc'] = 'csv_join'
 tools['hex_unescape.cc'] = 'hex_unescape'
+tools['json_packets.cc'] = 'json_packets'
 tools['json_to_csv.cc'] = 'json_to_csv'
+tools['json_prettyprint.cc'] = 'json_prettyprint'
 tools['extract_all.cc'] = 'extract_all'
 tools['zcat.cc'] = 'zcat'
 tools['alt_base64.cc'] = 'alt_base64'

@@ -16,7 +16,7 @@ public:
 	virtual void run() {
 		vector<string> components;
 	        vector<size_t> matchings;
-	
+
         	Tokenizer::match_pairs(_s, &components, &matchings);
 
 		vector<string> prefices;
