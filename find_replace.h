@@ -18,7 +18,10 @@ public:
 		vector<pair<string, string>> rules = parse(grammar);
 		string retval = seed;
 		set<size_t> indices = Containers::setrange(rules.size());
+		size_t counter = 2000;
 		while (indices.size()) {
+			--counter;
+			if (!counter) return "stuck in a loop; check grammar";
 			size_t pos = rand() % indices.size();
 			pos = Containers::get_set(indices, pos);
 			assert(pos < rules.size());
