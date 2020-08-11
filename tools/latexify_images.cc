@@ -9,7 +9,6 @@
 #include "ib/logger.h"
 #include "ib/set.h"
 #include "ib/tokenizer.h"
-#include "ib/json.h"
 #include "ib/run.h"
 
 using namespace std;
@@ -50,7 +49,7 @@ int main(int argc, char** argv) {
 	while (s.length()) {
 		string tmp;
 		string name, text;
-		r = Tokenizer::extract("%<img src=\"%\" alt=\"%\">%", s,
+		r = Tokenizer::extract("%<img data-latex=true src=\"%\" alt=\"%\">%", s,
 				       nullptr, &name, &text, &tmp);
 		s = tmp;
 		if (r == 4) {
