@@ -722,9 +722,11 @@ public:
 				      data, tokens, cnt);
 		}
 		assert(tokens->size());
-		assert(check_token_match(
+		if (!check_token_match(
 			data.substr(pos_data, token.length()),
-			format.substr(pos_format, token.length())));
+			format.substr(pos_format, token.length()))) {
+			return 0;
+		}
 		pos_format += token.length();
 		pos_data += token.length();
 

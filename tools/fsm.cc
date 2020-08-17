@@ -2,8 +2,10 @@
 #include <vector>
 #include <unistd.h>
 
+#include "ib/base64.h"
 #include "ib/fileutil.h"
 #include "ib/logger.h"
+#include "ib/tokenizer.h"
 #include "ib/fsm.h"
 
 using namespace std;
@@ -11,26 +13,24 @@ using namespace ib;
 
 int main(int argc, char** argv) {
 	if (argc != 3) {
-		Logger::error("usage % rulefile word", argv[0]);
+		Logger::error("usage % rulesb64 word", argv[0]);
 		return -1;
 	}
 
+	string m = argv[1];
 	string w = argv[2];
+	m = Base64::decode(m);
 	vector<string> lines;
-	Fileutil::read_file(argv[1], &lines);
-
+	Tokenizer::split_with_empty(m, "\n", &lines);
 	FSM fsm(lines);
 	for (size_t i = 0; i < w.length(); ++i) {
 		fsm.process(w.substr(i, 1));
 	}
-	Logger::info("state of machine after %: %", w,
-		     FSM::as_state(fsm.state()));
-	Logger::info("% is %", w, fsm.is_accept(fsm.state()) ? "accepted" :
-		     "rejected");
-
-
-
-	Logger::info("");
-	Logger::info("");
-	Logger::info("subset construction is:\n%", fsm.subset_construction());
+	if (fsm.is_accept(fsm.state())) {
+		cout << "accept" << endl;
+		return 1;
+	} else {
+		cout << "reject" << endl;
+		return 0;
+	}
 }

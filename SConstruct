@@ -1,6 +1,4 @@
 import os
-for i in range(0, 10):
-    print ""
 common = Split("""config.cc
 	          logger.cc
 		  sensible_time.cc
