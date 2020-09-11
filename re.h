@@ -250,13 +250,30 @@ public:
 		int count = 0;
 		assert(pos);
 		size_t move = pos - 1;
-		while (move > 0 && re[move] == '*') --move;
-		while (move > 0) {
-			if (re[move] == ')') ++count;
-			if (re[move] == '(') --count;
-			if (!count) break;
-			--move;
+		if (re[pos] == '+') {
+			while (move > 0) {
+				if (re[move] == ')') ++count;
+				if (re[move] == '(') --count;
+				if (count < 0) {
+					++move;
+					break;
+				}
+				if (!count && re[move] == '+') {
+					++move;
+					break;
+				}
+				--move;
+			}
+		} else {
+			while (move > 0 && re[move] == '*') --move;
+			while (move > 0) {
+				if (re[move] == ')') ++count;
+				if (re[move] == '(') --count;
+				if (!count) break;
+				--move;
+			}
 		}
+
 		assert(move < re.length());
 		return re.substr(move, pos - move);
 	}
@@ -269,7 +286,11 @@ public:
 		while (move < re.length()) {
 			if (re[move] == '(') ++count;
 			if (re[move] == ')') --count;
-			if (!count) break;
+			if (count < 0) break;
+			if (!count && re[move] == '+') {
+				--move;
+				break;
+			}
 			++move;
 		}
 		while (move + 1 < re.length() && re[move + 1] == '*') ++move;
