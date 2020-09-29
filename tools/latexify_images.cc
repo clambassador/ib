@@ -49,22 +49,25 @@ int main(int argc, char** argv) {
 	while (s.length()) {
 		string tmp;
 		string name, text;
-		r = Tokenizer::extract("%<img data-latex=true src=\"%\" alt=\"%\">%", s,
+		r = Tokenizer::extract("%<img data-latex=true style=\"vertical-align:middle\" src=\"%\" alt=\"%\">%", s,
 				       nullptr, &name, &text, &tmp);
 		s = tmp;
 		if (r == 4) {
 			assert(name.size());
 			assert(text.size());
 			cout << name << " " << text << endl;
+			string outfile = string(argv[2]) + "/" + name;
+			if (Fileutil::exists(outfile)) continue;
+
 			Fileutil::write_file("/tmp/latexify_image.tex",
 					     preamble + text + postamble);
+			unlink("/tmp/latexify_image.pdf");
 			{
 				Run r("pdflatex -output-directory=/tmp /tmp/latexify_image.tex");
 				r();
 				r.result();
 			}
 			{
-				string outfile = string(argv[2]) + "/" + name;
 				Run r("pdftoppm /tmp/latexify_image.pdf | pnmtopng");
 				r();
 				r.redirect(outfile);
