@@ -5,6 +5,7 @@ common = Split("""config.cc
 		  fileutil.cc
 	       """)
 tools = dict()
+tools['decrypt_strings.cc'] = 'decrypt_strings'
 tools['latexify_images.cc'] = 'latexify_images'
 tools['xor_pref.cc'] = 'xor_pref'
 tools['xor.cc'] = 'xor'
@@ -50,6 +51,8 @@ tests['test_re.cc'] = 'test_re'
 tests['test_dupre.cc'] = 'test_dupre'
 
 libs = Split("""z
+	        ssl
+		crypto
 	     """)
 env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'

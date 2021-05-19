@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 	}
 	int r;
 	string preamble = R"--(
-\documentclass{standalone}
+\documentclass[border=2mm]{standalone}
 \usepackage[utf8]{inputenc}
 
 \usepackage{amssymb}

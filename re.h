@@ -286,7 +286,10 @@ public:
 		while (move < re.length()) {
 			if (re[move] == '(') ++count;
 			if (re[move] == ')') --count;
-			if (count < 0) break;
+			if (count < 0) {
+				--move;
+				break;
+			}
 			if (!count && re[move] == '+') {
 				--move;
 				break;
