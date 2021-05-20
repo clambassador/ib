@@ -6,7 +6,7 @@
 using namespace std;
 using namespace ib;
 
-void trace(const set<Graph<string>::Node<string>*>& nodes) {
+void trace(const set<Graph<string>::Node*>& nodes) {
 	for (auto x : nodes) {
 		cout << x->data() << " ";
 	}

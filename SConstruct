@@ -54,7 +54,7 @@ libs = Split("""z
 	        ssl
 		crypto
 	     """)
-env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++11", LIBS=libs, CPPPATH="..")
+env = Environment(CXX="ccache clang++ -I.. -pthread", 		  CPPFLAGS="-D_FILE_OFFSET_BITS=64 -Wall -g --std=c++17", LIBS=libs, CPPPATH="..")
 env['ENV']['TERM'] = 'xterm'
 env['ENV']['TARGET'] = 'bin/'
 
