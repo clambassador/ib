@@ -28,8 +28,10 @@ public:
 	Graph() {}
 	virtual ~Graph() {}
 
+	// TODO: create a sanity / consistency checker
+
 	/* Node subclass for the graph. Each node tracks a list its edges. */
-	// TODO: create edge class
+	class Edge;
 	class Node {
 	public:
 		Node(const T& r) {
@@ -42,20 +44,18 @@ public:
 
 		virtual ~Node() = default;
 
+		// returns a const reference to the data object associated
 		const T& data() { return *_r.get(); }
 
+		// returns the data object associated with node as pointer
 		T* ptr_data() { return _r.get(); }
 
-		/* create an edge with no edge data */
-		void add_edge(Node* other) {
-			_edges[other];
+		// add an edge from this node to another
+		void add_edge(Node* other, Edge* edge) {
+			_edges[other] = edge;
 		}
 
-		/* create an edge by owning val as edge data */
-		void add_edge(Node* other, R* val) {
-			_edges[other] = val;
-		}
-
+		// returns true iff this node has an edge to the target
 		bool has_edge(const T& target) {
 			for (auto& x: _edges) {
 				if (x.first->data() == target) return true;
@@ -63,11 +63,35 @@ public:
 			return false;
 		}
 
-		map<Node *, R *> edges() { return _edges; }
+		// returns the edge map
+		map<Node*, Edge*> edges() { return _edges; }
 
 	protected:
 		unique_ptr<T> _r;
-		map<Node *, R *> _edges;
+		map<Node*, Edge*> _edges;
+	};
+
+	class Edge {
+	public:
+		Edge(Node* one, Node* two) : Edge(one, two, false) {}
+		Edge(Node* one, Node* two, bool directed)
+			: Edge(one, two, directed, nullptr) {}
+		Edge(Node* one, Node* two, bool directed, R* data)
+			: _one(one), _two(two), _directed(directed) {
+			_r.reset(data);
+		}
+
+		virtual ~Edge() = default;
+
+		const R& data() { return *_r.get(); }
+
+		R* ptr_data() { return _r.get(); }
+
+	protected:
+		Node* _one;
+		Node* _two;
+		bool _directed;
+		unique_ptr<R> _r;
 	};
 
 	/* Add a new node val if it is not there */
@@ -92,9 +116,11 @@ public:
 	void add_join_nodes(const T& one, const T& two, R* edge) {
 		maybe_add_node(one);
 		maybe_add_node(two);
-		_delete_edges.emplace_back(nullptr);
-		_delete_edges.back().reset(edge);
-		join_nodes(one, two, edge);
+		_edges.emplace_back(nullptr);
+		_edges.back().reset(new Edge(_nodes[one].get(),
+					     _nodes[two].get(),
+					     true, edge));
+		join_nodes(one, two, _edges.back().get());
 	}
 
 	/* Add nodes one and two and then an edge that connects them. Copies the
@@ -102,34 +128,40 @@ public:
 	void add_join_nodes(const T& one, const T& two, const R& edge) {
 		maybe_add_node(one);
 		maybe_add_node(two);
-		_delete_edges.emplace_back(nullptr);
-		_delete_edges.back().reset(new R(edge));
-		join_nodes(one, two, _delete_edges.back().get());
+		_edges.emplace_back(nullptr);
+		_edges.back().reset(new Edge(_nodes[one].get(),
+					     _nodes[two].get(),
+					     true, new R(edge)));
+		join_nodes(one, two, _edges.back().get());
 	}
 
 	/* Add nodes one and two and then an edge that connects them */
 	void add_join_nodes(const T& one, const T& two) {
-		maybe_add_node(one);
-		maybe_add_node(two);
-		join_nodes(one, two);
+		add_join_nodes(one, two, nullptr);
 	}
 
 	void add_directed_join_nodes(const T& one, const T& two, R* edge) {
 		maybe_add_node(one);
 		maybe_add_node(two);
-		directed_join_nodes(one, two, edge);
+		_edges.emplace_back(nullptr);
+		_edges.back().reset(new Edge(_nodes[one].get(),
+					     _nodes[two].get(),
+					     false, edge));
+		directed_join_nodes(one, two, _edges.back().get());
 	}
 
 	void add_directed_join_nodes(const T& one, const T& two, const R& edge) {
 		maybe_add_node(one);
 		maybe_add_node(two);
-		directed_join_nodes(one, two, new R(edge));
+		_edges.emplace_back(nullptr);
+		_edges.back().reset(new Edge(_nodes[one].get(),
+					     _nodes[two].get(),
+					     false, new R(edge)));
+		directed_join_nodes(one, two, _edges.back().get());
 	}
 
 	void add_directed_join_nodes(const T& one, const T& two) {
-		maybe_add_node(one);
-		maybe_add_node(two);
-		directed_join_nodes(one, two);
+		add_directed_join_nodes(one, two, nullptr);
 	}
 
 	void check_nodes(const T& one, const T& two) {
@@ -140,26 +172,33 @@ public:
 	}
 
 	void join_nodes(const T& one, const T& two) {
-		check_nodes(one, two);
-		_nodes[one]->add_edge(_nodes[two].get());
-		_nodes[two]->add_edge(_nodes[one].get());
+		_edges.emplace_back(nullptr);
+		_edges.back().reset(new Edge(_nodes[one].get(),
+					     _nodes[two].get(),
+					     false, nullptr));
 	}
 
-	void join_nodes(const T& one, const T& two, R* edge) {
+
+	void join_nodes(const T& one, const T& two, Edge* edge) {
 		check_nodes(one, two);
+
 		_nodes[one]->add_edge(_nodes[two].get(), edge);
 		_nodes[two]->add_edge(_nodes[one].get(), edge);
 	}
 
-	void directed_join_nodes(const T& one, const T& two, R* edge) {
-		check_nodes(one, two);
-		_delete_edges.emplace_back(make_unique(edge));
-		_nodes[one]->add_edge(_nodes[two].get(), edge);
-	}
-
 	void directed_join_nodes(const T& one, const T& two) {
 		check_nodes(one, two);
-		_nodes[one]->add_edge(_nodes[two].get());
+		Node* n_one = _nodes[one].get();
+		Node* n_two = _nodes[two].get();
+		_edges.emplace_back(nullptr);
+		_edges.back().reset(new Edge(n_one, n_two, true, nullptr));
+		n_one->add_edge(n_two, _edges.back().get());
+	}
+
+	void directed_join_nodes(const T& one, const T& two, Edge* edge) {
+		check_nodes(one, two);
+
+		_nodes[one]->add_edge(_nodes[two].get(), edge);
 	}
 
 	void build_reachability(size_t max_depth) {
@@ -189,6 +228,7 @@ public:
 		return reachable;
 	}
 
+	// returns true if node one is connected to node two
 	bool is_connected(const T& one, const T& two) {
 		return is_connected(one, two, 0);
 	}
@@ -270,7 +310,7 @@ protected:
 	bool get_path_impl(Node* to, Node* from, vector<pair<T*, R*>>* path) {
 		for (auto &x : from->edges()) {
 			if (x.first == to) {
-				path->back().second = x.second;
+				path->back().second = x.second->ptr_data();
 				path->push_back(make_pair(to->ptr_data(), nullptr));
 				return true;
 			}
@@ -281,7 +321,7 @@ protected:
 				if (_nodes[*y.first].get() == x.first) skip = true;
 			}
 			if (skip) continue;
-			path->back().second = x.second;
+			path->back().second = x.second->ptr_data();
 			path->push_back(make_pair(x.first->ptr_data(), nullptr));
 			if (get_path_impl(to, x.first, path)) return true;
 			path->pop_back();
@@ -290,7 +330,7 @@ protected:
 	}
 
 	map<T, unique_ptr<Node>> _nodes;
-	vector<unique_ptr<R>> _delete_edges;
+	list<unique_ptr<Edge>> _edges;
 	map<T, set<Node*>> _reachable;
 	size_t _depth;
 
